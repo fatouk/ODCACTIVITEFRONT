@@ -1,0 +1,23 @@
+<div class="modal-header editRowModal">
+  <h4 class="modal-title" id="modal-basic-title">
+    <div class="table-modal-header">
+      <div class="modal-about">
+        <div class="fw-bold p-t-10 font-17">
+          Les listes des participants.
+        </div>
+      </div>
+    </div>
+  </h4>
+  <button type="button" class="close" aria-label="Close" (click)="modalService.dismissAll('Cross click')">
+    <span aria-hidden="true"><i class="material-icons">close</i></span>
+  </button>
+</div>
+<div class="modal-body">
+  <button type="submit" class="btn btn-warning mr-3" (click)='filterByDebut()'>
+    Liste début
+  </button>
+
+  <button type="submit" class="btn btn-dark" style="margin-left: 7px" (click)='filterByResultat()'>
+    Liste résultat
+  </button>
+</div>

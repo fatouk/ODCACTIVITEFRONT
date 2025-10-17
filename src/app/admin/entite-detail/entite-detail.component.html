@@ -1,0 +1,139 @@
+<section class="main-content">
+
+    <div class="d-flex align-items-center gap-3 fs-5 fw-bold">
+      <div class="d-flex flex-column align-items-start bg-warning rounded-pill px-3 py-1">
+        <div class="px-3 pb-0 bg-dark rounded-pill text-white">
+          Détails Entités
+        </div>
+      </div>
+      <div class="mt-1 flex-grow d-flex justify-content-end">
+        <button
+          class="btn btn-warning text-white fw-bold py-2 px-4 rounded-pill"
+          (click)="back()"
+        >
+          Retour
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="entite" class="mt-4 d-flex flex-column align-items-center">
+      <div class="card shadow w-96 w-md-70 w-lg-50">
+        <div class="position-relative">
+          <img
+            [src]="entite.logo"
+            alt="{{ entite.nom }}"
+            class="card-img-top rounded-top transition-transform duration-300 scale-100 hover:scale-105"
+            style="height: 30rem; object-fit: cover;"
+          />
+          <div class="position-absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent rounded-top"></div>
+        </div>
+
+        <div class="card-body text-white bg-dark">
+          <h2 class="card-title fs-4 fw-bold mb-2">{{ entite.nom }}</h2>
+
+          <div class="mt-3">
+            <h3 class="fw-semibold fs-6">Responsable</h3>
+            <p class="text-secondary">
+              Mr/Mme {{ entite.responsable?.nom }} {{ entite.responsable?.prenom }}
+            </p>
+          </div>
+
+          <div class="mt-3">
+            <h3 class="fw-semibold fs-6">Description</h3>
+            <p class="text-secondary">{{ entite.description }}</p>
+          </div>
+
+<!--          (click)='editRow(row,editRecord)'-->
+<!--          (click)='deleteSingleRow(row)'-->
+          <span>
+            <button class="btn btn-tbl-edit h-auto" (click)='editRow(entite,editRecord)' >
+              <i class="fas fa-pen"></i>
+            </button>
+            <button class="btn btn-tbl-delete h-auto"  (click)='deleteSingleRow(entite)'>
+              <i class="far fa-trash-alt"></i>
+            </button>
+          </span>
+        </div>
+      </div>
+
+
+      <ng-template #editRecord let-modal>
+        <div class="modal-header editRowModal">
+          <h4 class="modal-title" id="modal-basic-title">
+            <div class="table-modal-header">
+              <div class="modal-about">
+                <div class="fw-bold p-t-10 font-17">
+<!--                  {{selectedRowData!.nom}}-->
+                </div>
+              </div>
+            </div>
+          </h4>
+          <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true"><i class="material-icons">close</i></span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="editForm" (ngSubmit)="onEditSave(editForm)">
+
+            <div class="row">
+              <div class="col-xl-12 col-lg-6 col-md-12 col-sm-12 mb-2">
+                <label>Nom <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" placeholder="Nom" formControlName="nom"
+                       required>
+                @if (!register.get('nom')?.valid && register.get('nom')?.touched) {
+                  <small class="form-text text-danger"> Le nom est obligatoire</small>
+                }
+              </div>
+              <div class="form-group">
+                <label>Description<span class="text-danger">*</span></label>
+                <textarea type="text" class="form-control" placeholder="description" formControlName="description"></textarea>
+                @if (!register.get('description')?.valid && register.get('description')?.touched) {
+                  <small class="form-text text-danger"> description est obligatoire</small>
+                }
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="section-title">Logo</div>
+              <div class="custom-file">
+                <input type="file" (change)="onFileChange($event)" class="custom-file-input" id="customFile"  formControlName="logo">
+                <label class="custom-file-label" for="customFile">Choisissez une image</label>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-xl-12 col-lg-6 col-md-12 col-sm-12 mb-2">
+                <label>Responsable <span class="text-danger">*</span></label>
+                <select class="form-select form-control" formControlName="responsable" required>
+                  <option value="" [ngValue]="null" disabled>-- Sélectionnez un utilisateur --</option>
+                  <option *ngFor="let responsables of users" [ngValue]="responsables.id">{{responsables.nom}} {{responsables.prenom}}</option>
+                </select>
+                @if (!register.get('responsable')?.valid && register.get('responsable')?.touched) {
+                  <small class="form-text text-danger"> Responsable est obligatoire</small>
+                }
+              </div>
+
+              <div class="col-xl-12 col-lg-6 col-md-12 col-sm-12 mb-2">
+                <label>Type Activite <span class="text-danger">*</span></label>
+                <select  class="form-control h-100" multiple="" formControlName="typeActivite">
+                  <option value="" [ngValue]="null" disabled>&#45;&#45; Sélectionnez un ou plusieurs TypeActivite &#45;&#45;</option>
+                  <option *ngFor="let typeActivite of allTypeActivite" [ngValue]="typeActivite.id">{{typeActivite.type}}</option>
+                </select>
+                @if (!register.get('allTypeActivite')?.valid && register.get('allTypeActivite')?.touched) {
+                  <small class="form-text text-danger"> Type Activite est obligatoire</small>
+                }
+                <div class="mt-1 text-gray-500 mt-3 text-sm">Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs options.</div>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-warning" [disabled]="!editForm.valid">Enregistre</button>
+              <button type="button" class="btn btn-dark text-white" (click)="modal.close()">Fermer</button>
+            </div>
+          </form>
+        </div>
+      </ng-template>
+
+
+    </div>
+</section>

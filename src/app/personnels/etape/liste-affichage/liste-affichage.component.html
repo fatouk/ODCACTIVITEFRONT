@@ -1,0 +1,109 @@
+<section class="main-content">
+  <ul class="breadcrumb breadcrumb-style ">
+    <li class="breadcrumb-item">
+      <h5 class="page-title m-b-0">Table</h5>
+    </li>
+    <li class="breadcrumb-item bcrumb-1">
+      <a routerLink="/dashboardActivite">
+        <i class="fas fa-home font-17"></i></a>
+    </li>
+    <li class="breadcrumb-item">Liste</li>
+  </ul>
+  <div class="section-body">
+    <div class="row clearfix">
+      <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="card">
+          <div class="p-10">
+            <div class="row">
+              <div class="col-lg-6">
+                <div class="row m-0">
+                  <div class="col-auto p-0">
+                    <div class="ngxTableHeader">
+                      <div class="table-title">
+                        <!--                        <h2><strong>Advance Table</strong></h2>-->
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-8 p-0">
+                    <div class="ngxTableHeader">
+                      <div class="table-search-area">
+                        <div>
+                          <label for="search-input"><i class="material-icons search-icon">search</i></label>
+                          <input placeholder="Recherche" type="text" class="browser-default search-field"
+                                 (keyup)='filterDatatable($event)' aria-label="Search box">
+                        </div>
+                      </div>
+                      <div class="header-buttons-left">
+                        <div class="tbl-btn-style">
+<!--                          <button class="btn btn-icon icon-left bg-warning text-white rounded-button" (click)='addRow(addRecord)'>-->
+<!--                            <i class="material-icons">add</i>-->
+<!--                          </button>-->
+                          <button class="btn btn-dark" (click)="retour()">
+                            <i class="fas fa-arrow-left"></i>
+                            Retour
+                          </button>
+                          <!--<button [hidden]=!isRowSelected class="btn btn-icon icon-left btn-danger rounded-button"
+                                  (click)='retour()'>
+                            <i class="material-icons">delete</i>
+                          </button>-->
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <ngx-datatable #table class="material" [rows]="filteredListes" [loadingIndicator]="loadingIndicator"
+                           columnMode="force" [headerHeight]="60" [footerHeight]="80" rowHeight="auto" [limit]="10"
+                           [scrollbarH]="scrollBarHorizontal" [reorderable]="reorderable" [selected]="selected"
+                           [selectionType]="selection" (select)='onSelect($event)'>
+<!--              <ngx-datatable-column [width]="70" [sortable]="false" [draggable]="false" [resizeable]="false"-->
+<!--                                    [canAutoResize]="false" [headerCheckboxable]="true" [checkboxable]="true">-->
+<!--              </ngx-datatable-column>-->
+              <ngx-datatable-column [width]="200" name="Nom">
+                <ng-template let-row="row" let-value="value" let-i="index" ngx-datatable-cell-template>
+                  <div class="name-col-style">
+                    <div>{{row.etape.nom}}</div>
+                  </div>
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column [width]="200" name="Date Heure">
+                <ng-template let-row="row" let-value="value" let-i="index" ngx-datatable-cell-template>
+                  <div class="name-col-style">
+                    <div>{{ row.dateHeure | date:'dd/MM/yyyy HH:mm' }}</div>
+                  </div>
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column name="Actions" [sortable]="false">
+                <ng-template let-value="value" let-row="row" let-rowNom let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                  <span>
+
+<!--                     <button *ngIf="row.listeResultat" [routerLink]="['/listeReslustat', row.id]" class="btn btn-dark h-auto">-->
+                    <button *ngIf="row.listeResultat" (click)="openListeResultat(row)" class="btn btn-dark h-auto">
+
+                        <i class="fas fa-eye"></i>
+                        Voir liste
+                    </button>
+
+                    <button *ngIf="row.listeDebut" (click)="openListeDebut(row)" class="btn btn-dark h-auto">
+                      <i class="fas fa-eye"></i>
+                      Voir liste
+                    </button>
+
+                    <button class="btn btn-tbl-delete h-auto" (click)='deleteSingleRow(row)'>
+                      <i class="far fa-trash-alt"></i>
+                    </button>
+                  </span>
+                </ng-template>
+              </ngx-datatable-column>
+            </ngx-datatable>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--  <app-liste-globale></app-liste-globale>-->
+</section>
+

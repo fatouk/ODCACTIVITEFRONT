@@ -1,0 +1,68 @@
+<nav class="navbar navbar-expand-lg main-navbar sticky">
+  <div class="form-inline me-auto">
+    <ul class="navbar-nav msr-3">
+      <li>
+        <a data-toggle="sidebar" class="nav-link nav-link-lg
+          collapse-btn" (click)="mobileMenuSidebarOpen($event,'overlay-open')">
+          <i-feather name="menu"></i-feather>
+        </a>
+      </li>
+        <li>
+          <form class="form-inline me-auto">
+            <div class="search-element d-flex">
+              <input class="form-control" type="search" placeholder="{{'HEADER.SEARCH.TEXT' | translate}}"
+                aria-label="Search" data-width="200">
+                <button class="btn" type="submit">
+                  <i class="fas fa-search"></i>
+                </button>
+            </div>
+          </form>
+        </li>
+    </ul>
+  </div>
+
+  <ul class="navbar-nav navbar-right">
+    <li>
+      <a class="nav-link nav-link-lg
+      collapse-btn" (click)="callFullscreen()">
+      <i-feather name="maximize"></i-feather>
+     </a>
+    </li>
+    <!--<li class="dropdown dropdown-list-toggle" ngbDropdown>
+      <a data-toggle="dropdown" class="nav-link nav-link-lg lang-toggle remove-caret" ngbDropdownToggle>
+        @if (flagvalue !== undefined) {
+          <img src="{{flagvalue}}" alt="Header Language" height="16">
+          }
+          @if (flagvalue === undefined) {
+            <img src="{{defaultFlag}}" alt="Header Language" height="16">
+            }
+          </a>
+          <div class="dropdown-menu header-dropdown dropdown-menu-right lang-dropdown-list pullDown" ngbDropdownMenu>
+            @for (item of listLang; track item) {
+              <a href="javascript:void(0);" class="dropdown-item lang-item-list"
+                (click)="setLanguage(item.text, item.lang, item.flag)" [ngClass]="{'active': langStoreValue === item.lang}">
+                <img src="{{item.flag}}" alt="user-image" class="msr-1" height="12"> <span
+                class="align-middle">{{item.text}}</span>
+              </a>
+            }
+          </div>
+    </li>-->
+
+    <li ngbDropdown><a ngbDropdownToggle data-toggle="dropdown"
+      class="nav-link dropdown-toggle nav-link-lg nav-link-user">
+      <img alt="image" src="assets/images/user.png" class="user-img-radious-style collapse-btn"> <span
+      class="d-sm-none d-lg-inline-block"></span></a>
+      <div ngbDropdownMenu class="dropdown-menu dropdown-menu-right header-dropdown pullDown">
+        <div class="dropdown-title">Bonjour {{ nomComplet }}</div>
+        <a routerLink="/profile" class="dropdown-item has-icon"> <i class="far
+        fa-user"></i> Profile
+      </a>
+      <div class="dropdown-divider"></div>
+        <a href="javascript:void(0);" class="dropdown-item has-icon text-danger" (click)="logout()"> <i
+        class="fas fa-sign-out-alt"></i>
+        Déconnexion
+        </a>
+      </div>
+    </li>
+  </ul>
+</nav>

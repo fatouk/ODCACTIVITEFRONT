@@ -1,0 +1,26 @@
+.breadcrumb {
+  background-color: transparent;
+  padding: 0.75rem 0rem;
+  margin-top: 1rem;
+  .breadcrumb-item {
+    i {
+      margin-right: 5px;
+    }
+  }
+  .breadcrumb-item + .breadcrumb-item::before {
+    content: '\f054';
+    color: #6c757d;
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    font-size: 12px;
+  }
+  .bcrumb-1 {
+    a {
+      color: #f1a535;
+    }
+  }
+}
+
+$color-primary: #ffa117;
+$color-primary-shadow: #f1a535;
+$color-primary-light: #efb45f;

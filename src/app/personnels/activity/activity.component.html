@@ -1,0 +1,454 @@
+<section class="main-content">
+  <ul class="breadcrumb breadcrumb-style ">
+    <li class="breadcrumb-item">
+      <h5 class="page-title m-b-0">Table</h5>
+    </li>
+    <li class="breadcrumb-item bcrumb-1">
+      <a routerLink="/dashboardActivite">
+        <i class="fas fa-home font-17"></i></a>
+    </li>
+    <li class="breadcrumb-item">Activité</li>
+  </ul>
+  <div class="section-body">
+    <div class="row clearfix">
+      <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="card">
+          <div class="p-10">
+            <div class="row">
+              <div class="col-lg-6">
+                <div class="row m-0">
+                  <div class="col-auto p-0">
+                    <div class="ngxTableHeader">
+                      <div class="table-title">
+                        <!--                        <h2><strong>Advance Table</strong></h2>-->
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-8 p-0">
+                    <div class="ngxTableHeader">
+                      <div class="table-search-area">
+                        <div>
+                          <label for="search-input"><i class="material-icons search-icon">search</i></label>
+                          <input placeholder="Rechercher" type="text" class="browser-default search-field"
+                                 (keyup)='filterDatatable($event)' aria-label="Search box">
+                        </div>
+                      </div>
+                      <div class="header-buttons-left">
+                        <div class="tbl-btn-style">
+                          <button
+                            *ngIf="useRole.includes('PERSONNEL')"
+                            class="btn btn-icon icon-left bg-warning text-white rounded-button"
+                            (click)='addRow(addRecord)'>
+                            <i class="material-icons">add</i>
+                          </button>
+                          <button [hidden]=!isRowSelected class="btn btn-icon icon-left btn-danger rounded-button"
+                                  (click)='deleteSelected()'>
+                            <i class="material-icons">delete</i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <ngx-datatable #table class="material" [rows]="activite" [loadingIndicator]="loadingIndicator"
+                           columnMode="force" [headerHeight]="60" [footerHeight]="80" rowHeight="auto" [limit]="10"
+                           [scrollbarH]="scrollBarHorizontal" [reorderable]="reorderable" [selected]="selected"
+                           [selectionType]="selection" (select)='onSelect($event)'>
+              <ngx-datatable-column [width]="70" [sortable]="false" [draggable]="false" [resizeable]="false"
+                                    [canAutoResize]="false" [headerCheckboxable]="true" [checkboxable]="true">
+              </ngx-datatable-column>
+              <ngx-datatable-column [width]="150" name="Nom">
+                <ng-template let-row="row" let-value="value" let-i="index" ngx-datatable-cell-template>
+                  <div class="name-col-style">
+                    <div>{{row.nom}}</div>
+                  </div>
+                </ng-template>
+              </ngx-datatable-column>
+<!--              <ngx-datatable-column [width]="150" name="Titre">-->
+<!--                <ng-template let-row="row" let-value="value" let-i="index" ngx-datatable-cell-template>-->
+<!--                  <div class="name-col-style">-->
+<!--                    <div>{{row.titre}}</div>-->
+<!--                  </div>-->
+<!--                </ng-template>-->
+<!--              </ngx-datatable-column>-->
+              <ngx-datatable-column [width]="150" name="Lieu">
+                <ng-template let-row="row" let-value="value" let-i="index" ngx-datatable-cell-template>
+                  <div class="name-col-style">
+                    <div>{{row.lieu}}</div>
+                  </div>
+                </ng-template>
+              </ngx-datatable-column>
+<!--              <ngx-datatable-column [width]="200" name="Date Début">-->
+<!--                <ng-template let-row="row" let-value="value" let-i="index" ngx-datatable-cell-template>-->
+<!--                  <div class="name-col-style">-->
+<!--                    <div>{{row.dateDebut}}</div>-->
+<!--                  </div>-->
+<!--                </ng-template>-->
+<!--              </ngx-datatable-column>-->
+              <ngx-datatable-column [width]="150" name="Statut">
+                <ng-template let-row="row" let-value="value" let-i="index" ngx-datatable-cell-template>
+<!--                  <div class="name-col-style">-->
+                    @if (row.statut === 'En_Cours') {
+                      <div class="badge-outline col-green">{{row.statut}}
+                      </div>
+                    }
+                    @if (row.statut === 'Termine') {
+                      <div class="badge-outline col-red">{{row.statut}}
+                      </div>
+                    }
+                    @if (row.statut === 'En_Attente') {
+                      <div class="badge-outline col-indigo">{{row.statut}}
+                      </div>
+                    }
+<!--                  </div>-->
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column [width]="150" name="Objectif">
+                <ng-template let-row="row" let-value="value" let-i="index" ngx-datatable-cell-template>
+                  <div class="name-col-style">
+                    <div>{{row.objectifParticipation}}</div>
+                  </div>
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column [width]="150" name="Entite">
+                <ng-template let-row="row" let-value="value" let-i="index" ngx-datatable-cell-template>
+                  <div class="name-col-style">
+                    <div>{{row.entite?.nom}}</div>
+                  </div>
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column [width]="150" name="Type Activite">
+                <ng-template let-row="row" let-value="value" let-i="index" ngx-datatable-cell-template>
+                  <div class="name-col-style">
+                    <div>{{row.typeActivite?.type}}</div>
+                  </div>
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column [width]="150" name="Salle">
+                <ng-template let-row="row" let-value="value" let-i="index" ngx-datatable-cell-template>
+                  <div class="name-col-style">
+                    <div>{{row.salleId?.nom}}</div>
+                  </div>
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column name="Actions" [sortable]="false">
+                <ng-template let-value="value" let-row="row" let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                  <span>
+                    <button
+                      *ngIf="useRole.includes('PERSONNEL')"
+                      class="btn btn-tbl-edit h-auto" (click)='editRow(row, rowIndex, editRecord)'>
+                      <i class="fas fa-pen"></i>
+                    </button>
+                    <button
+                      *ngIf="useRole.includes('PERSONNEL')"
+                      class="btn btn-tbl-delete h-auto" (click)='deleteSingleRow(row)'>
+                      <i class="far fa-trash-alt"></i>
+                    </button>
+                  </span>
+                  <!-- Message si aucune étape n'est disponible pour l'activité -->
+                  <div *ngIf="!row.etapes || row.etapes.length === 0" colspan="7" class="text-danger">
+                    Activité n'a pas d'étapes.
+                  </div>
+                </ng-template>
+              </ngx-datatable-column>
+            </ngx-datatable>
+
+
+
+            <!-- Add Record Modal Window -->
+            <ng-template #addRecord let-modal>
+              <div class="modal-header editRowModal">
+                <button type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
+                  <span aria-hidden="true"><i class="material-icons">close</i></span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form class="register-form" [formGroup]="register" (ngSubmit)="onAddRowSave(register)" enctype="multipart/form-data">
+                  <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Nom <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" placeholder="Nom activité" formControlName="nom"
+                             required>
+                      @if (!register.get('nom')?.valid && register.get('nom')?.touched) {
+                        <small class="form-text text-danger"> Nom activité est obligatoire</small>
+                      }
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Titre <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" placeholder="Titre activité" formControlName="titre"
+                             required>
+                      @if (!register.get('titre')?.valid && register.get('titre')?.touched) {
+                        <small class="form-text text-danger"> Titre activité est obligatoire</small>
+                      }
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Lieu <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" placeholder="Lieu activité" formControlName="lieu"
+                             required>
+                      @if (!register.get('lieu')?.valid && register.get('lieu')?.touched) {
+                        <small class="form-text text-danger"> Lieu activité est obligatoire</small>
+                      }
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Description <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" placeholder="Description activité" formControlName="description"
+                             required>
+                      @if (!register.get('description')?.valid && register.get('description')?.touched) {
+                        <small class="form-text text-danger"> Description est obligatoire</small>
+                      }
+                    </div>
+                    <div class="col-xl-12 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Objectif Participant <span class="text-danger">*</span></label>
+                      <input type="number" class="form-control" placeholder="Objectif activité" formControlName="objectifParticipation"
+                             required>
+                      @if (!register.get('objectifParticipation')?.valid && register.get('objectifParticipation')?.touched) {
+                        <small class="form-text text-danger"> Objectif est obligatoire</small>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Date Début <span class="text-danger">*</span></label>
+                      <input type="date" class="form-control" placeholder="Date debut" formControlName="dateDebut"
+                             required>
+                      @if (!register.get('dateDebut')?.valid && register.get('dateDebut')?.touched) {
+                        <small class="form-text text-danger"> Date est obligatoire</small>
+                      }
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Date Fin <span class="text-danger">*</span></label>
+                      <input type="date" class="form-control" placeholder="Date fin" formControlName="dateFin"
+                             required>
+                      @if (!register.get('dateFin')?.valid && register.get('dateFin')?.touched) {
+                        <small class="form-text text-danger"> Date Fin est obligatoire</small>
+                      }
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Entite <span class="text-danger">*</span></label>
+                      <select class="form-select form-control" formControlName="entite" required>
+                        <option value="" [ngValue]="null" disabled>-- Sélectionnez une entite --</option>
+                        <option *ngFor="let entite of entite"  [value]="entite.id">{{entite.nom}}</option>
+                      </select>
+                    </div>
+                    <div class="col-xl-6 col-lg-4 col-md-12 col-sm-12 mb-2">
+                      <label>Salle<span class="text-danger"> * </span></label>
+                      <select class="form-select form-control" formControlName="salleId" required>
+                        <option value="" [ngValue]="null" disabled>-- Sélectionnez une salle --</option>
+                        <option *ngFor="let salles of salleId"  [value]="salles.id">{{salles.nom}}</option>
+                      </select>
+                    </div>
+
+                     <div class="col-xl-6 col-lg-4 col-md-12 col-sm-12 mb-2">
+                      <label>Type d'activité<span class="text-danger"> * </span></label>
+                      <select class="form-select form-control" formControlName="typeActivite" required>
+                        <option value="" [ngValue]="null" disabled>-- Sélectionnez un type --</option>
+                        <option *ngFor="let typeActivite of typeActivites"  [value]="typeActivite.id">{{typeActivite.type}}</option>
+                      </select>
+                    </div>
+                  </div>
+                  <!-- Debut validation -->
+                  <div class="row">
+                  <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+                    <label>Superviseur / Valideur</label>
+                    <select class="form-select form-control" formControlName="superviseurId" (change)="onSuperviseurSelected($event)">
+                      <option value="">-- Sélectionnez un superviseur --</option>
+                      <option *ngFor="let user of utilisateursPersonnels" [value]="user.id">
+                        {{ user.nom }} {{ user.prenom }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <div *ngIf="showCommentaire" class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
+                    <label>Commentaire du superviseur</label>
+                    <textarea class="form-control"
+                              rows="3"
+                              placeholder="Ajouter un commentaire..."
+                              formControlName="commentaire">
+                    </textarea>
+                  </div>
+                   <div class="form-group mt-3">
+    <label for="fichier">Fichier joint :</label>
+    <input
+      type="file"
+      id="fichier"
+      (change)="onFileSelected($event)"
+      accept=".pdf,.png,.jpg,.jpeg,.docx"
+      class="form-control"
+    />
+  </div>
+
+  <div *ngIf="selectedFile" class="mt-2 text-success">
+    <small>Fichier sélectionné : {{ selectedFile.name }}</small>
+  </div>
+</div>
+<!-- Fin validation -->
+
+                  <div class="modal-footer">
+                    <button type="submit" class="btn btn-warning" [disabled]="!register.valid || loadingIndicator">
+                      <span *ngIf="loadingIndicator" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                      {{ loadingIndicator ? 'Chargement...' : 'Enregistre' }}
+                    </button>
+
+                    <button type="button" class="btn btn-dark text-white" (click)="modal.close('Close click')">Fermer</button>
+                  </div>
+                </form>
+              </div>
+            </ng-template>
+            <!-- Edit Record Modal Window -->
+            <ng-template #editRecord let-modal>
+              <div class="modal-header editRowModal">
+                <h4 class="modal-title" id="modal-basic-title">
+                  <div class="table-modal-header">
+                    <div class="modal-about">
+                      <div class="fw-bold p-t-10 font-17">
+                        {{selectedRowData!.nom}}
+                      </div>
+                    </div>
+                  </div>
+                </h4>
+                <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+                  <span aria-hidden="true"><i class="material-icons">close</i></span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form [formGroup]="editForm" (ngSubmit)="onEditSave(editForm)">
+                  <div class="input-field col s12 d-none">
+                    <input formControlName="id" class="form-control" type="hidden">
+                  </div>
+                  <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Nom <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" placeholder="Nom activité" formControlName="nom"
+                             required>
+                      @if (!editForm.get('nom')?.valid && editForm.get('nom')?.touched) {
+                        <small class="form-text text-danger"> Nom activité est obligatoire</small>
+                      }
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Titre <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" placeholder="Titre activité" formControlName="titre"
+                             required>
+                      @if (!editForm.get('titre')?.valid && editForm.get('titre')?.touched) {
+                        <small class="form-text text-danger"> Titre activité est obligatoire</small>
+                      }
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Lieu <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" placeholder="Lieu activité" formControlName="lieu"
+                             required>
+                      @if (!editForm.get('lieu')?.valid && editForm.get('lieu')?.touched) {
+                        <small class="form-text text-danger"> Lieu activité est obligatoire</small>
+                      }
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Description <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" placeholder="Description activité" formControlName="description"
+                             required>
+                      @if (!editForm.get('description')?.valid && editForm.get('description')?.touched) {
+                        <small class="form-text text-danger"> Description est obligatoire</small>
+                      }
+                    </div>
+                    <div class="col-xl-12 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Objectif Participant <span class="text-danger">*</span></label>
+                      <input type="number" class="form-control" placeholder="Objectif activité" formControlName="objectifParticipation"
+                             required>
+                      @if (!editForm.get('objectifParticipation')?.valid && editForm.get('objectifParticipation')?.touched) {
+                        <small class="form-text text-danger"> Objectif est obligatoire</small>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Date Début <span class="text-danger">*</span></label>
+                      <input type="date" class="form-control" placeholder="Date debut" formControlName="dateDebut"
+                             required>
+                      @if (!editForm.get('dateDebut')?.valid && editForm.get('dateDebut')?.touched) {
+                        <small class="form-text text-danger"> Date est obligatoire</small>
+                      }
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Date Fin <span class="text-danger">*</span></label>
+                      <input type="date" class="form-control" placeholder="Date fin" formControlName="dateFin"
+                             required>
+                      @if (!editForm.get('dateFin')?.valid && editForm.get('dateFin')?.touched) {
+                        <small class="form-text text-danger"> Date Fin est obligatoire</small>
+                      }
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Entite <span class="text-danger">*</span></label>
+                      <select class="form-select form-control" formControlName="entite" required>
+                        <option value="" [ngValue]="null" disabled>-- Sélectionnez une entite --</option>
+                        <option *ngFor="let entite of entite"  [value]="entite.id">{{entite.nom}}</option>
+                      </select>
+                      @if (!editForm.get('entite')?.valid && editForm.get('entite')?.touched) {
+                        <small class="form-text text-danger"> entite est obligatoire</small>
+                      }
+                    </div>
+                    <div class="col-xl-6 col-lg-4 col-md-12 col-sm-12 mb-2">
+                      <label>Salle<span class="text-danger">*</span></label>
+                      <select class="form-select form-control" formControlName="salleId" required>
+                        <option value="" [ngValue]="null" disabled>-- Sélectionnez une salle --</option>
+                        <option *ngFor="let salles of salleId"  [value]="salles.id">{{salles.nom}}</option>
+                      </select>
+                      @if (!editForm.get('salle')?.valid && editForm.get('salle')?.touched) {
+                        <small class="form-text text-danger"> sallw est obligatoire</small>
+                      }
+                    </div>
+                     <div class="col-xl-6 col-lg-4 col-md-12 col-sm-12 mb-2">
+                      <label>Type d'activite<span class="text-danger">*</span></label>
+                      <select class="form-select form-control" formControlName="typeActivite" required>
+                        <option value="" [ngValue]="null" disabled>-- Sélectionnez un type --</option>
+                        <option *ngFor="let typeActivites of typeActivites"  [value]="typeActivites.id">{{typeActivites.type}}</option>
+                      </select>
+                      @if (!editForm.get('typeActivite')?.valid && editForm.get('typeActivite')?.touched) {
+                        <small class="form-text text-danger"> type est obligatoire</small>
+                      }
+                    </div>
+                    <!--<div class="col-xl-6 col-lg-4 col-md-12 col-sm-12 mb-2">
+                      <label>Etape<span class="text-danger">*</span></label>
+                      <select class="form-select form-control" formControlName="etape" required>
+                        <option value="" [ngValue]="null" disabled>&#45;&#45; Sélectionnez une etape &#45;&#45;</option>
+                        <option *ngFor="let etapes of etape"  [value]="etapes.id">{{etapes.nom}}</option>
+                      </select>
+                    </div>-->
+                    <div class="col-xl-12 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Etape <span class="text-danger">*</span></label>
+                      <select  class="form-control h-100" multiple="" (ngModelChange)="onEtapesChange($event)" formControlName="etape">
+                        <option value="" [ngValue]="null" disabled>&#45;&#45; Sélectionnez un ou plusieurs Etape &#45;&#45;</option>
+                        <option *ngFor="let etapes of etape" [ngValue]="etapes.id">{{etapes.nom}}</option>
+                      </select>
+                      @if (!editForm.get('etape')?.valid && editForm.get('etape')?.touched) {
+                        <small class="form-text text-danger"> etape est obligatoire</small>
+                      }
+                      <div class="mt-1 text-gray-500 mt-3 text-sm">Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs options.</div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="submit" class="btn btn-warning" [disabled]="!editForm.valid || loadingIndicator">
+                      <span *ngIf="loadingIndicator" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                      {{ loadingIndicator ? 'Chargement...' : 'Enregistre' }}
+                    </button>
+
+                    <button type="button" class="btn btn-dark text-white" (click)="modal.close('Close click')">Fermer</button>
+                  </div>
+                </form>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

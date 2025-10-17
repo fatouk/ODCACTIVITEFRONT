@@ -1,0 +1,148 @@
+<section class="main-content">
+  <ul class="breadcrumb breadcrumb-style ">
+    <li class="breadcrumb-item">
+      <h5 class="page-title m-b-0">Dashboard</h5>
+    </li>
+    <li class="breadcrumb-item bcrumb-1">
+      <a routerLink="/dashboard/main">
+        <i class="fas fa-home font-17"></i></a>
+    </li>
+    <li class="breadcrumb-item">Tableau de Bord</li>
+  </ul>
+  <div class="section-body">
+    <div class="row ">
+      <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+        <div class="card">
+          <div class="card-statistic-4">
+            <div class="align-items-center justify-content-between">
+              <div class="row ">
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 left-grid-spacing">
+                  <div class="card-content">
+                    <h6>Activité Total</h6>
+                    <h2 class="mb-3 font-18">{{ nombreActivite }}</h2>
+<!--                    <p class="mb-0"><span class="col-green">42%</span></p>-->
+                  </div>
+<!--                  <ngb-progressbar type="success" [value]="42" height=".3rem"></ngb-progressbar>-->
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 right-grid-spacing">
+                  <div class="banner-img">
+                    <img src="assets/images/banner/1.png" alt="">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+        <div class="card">
+          <div class="card-statistic-4">
+            <div class="align-items-center justify-content-between">
+              <div class="row ">
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 left-grid-spacing">
+                  <div class="card-content">
+                    <h6> Activité en cours</h6>
+                    <h2 class="mb-3 font-18">{{ nombreActiviteEncours }}</h2>
+<!--                    <p class="mb-0"><span class="col-orange">33%</span></p>-->
+                  </div>
+<!--                  <ngb-progressbar type="warning" [value]="33" height=".3rem"></ngb-progressbar>-->
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 right-grid-spacing">
+                  <div class="banner-img">
+                    <img src="assets/images/banner/2.png" alt="">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+        <div class="card">
+          <div class="card-statistic-4">
+            <div class="align-items-center justify-content-between">
+              <div class="row ">
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 left-grid-spacing">
+                  <div class="card-content">
+                    <h6>Activité en attente</h6>
+                    <h2 class="mb-3 font-18">{{ nombreActiviteEnAttente }}</h2>
+<!--                    <p class="mb-0"><span class="col-blue">25%</span>-->
+<!--                    </p>-->
+                  </div>
+<!--                  <ngb-progressbar type="info" [value]="25" height=".3rem"></ngb-progressbar>-->
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 right-grid-spacing">
+                  <div class="banner-img">
+                    <img src="assets/images/banner/3.png" alt="">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+        <div class="card">
+          <div class="card-statistic-4">
+            <div class="align-items-center justify-content-between">
+              <div class="row ">
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 left-grid-spacing">
+                  <div class="card-content">
+                    <h6>Actitivé terminer</h6>
+                    <h2 class="mb-3 font-18">{{ nombreActiviteTerminer }}</h2>
+<!--                    <p class="mb-0"><span class="col-red">65%</span></p>-->
+                  </div>
+<!--                  <ngb-progressbar type="danger" [value]="65" height=".3rem"></ngb-progressbar>-->
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 right-grid-spacing">
+                  <div class="banner-img">
+                    <img src="assets/images/banner/4.png" alt="">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+        <div class="card">
+          <div class="card-statistic-4">
+            <div class="align-items-center justify-content-between">
+              <div class="row ">
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 left-grid-spacing">
+                  <div class="card-content">
+                    <h6>Nombre personnels</h6>
+                    <h2 class="mb-3 font-18">{{ nombreUtilisateurs }}</h2>
+<!--                    <p class="mb-0"><span class="col-red">65%</span></p>-->
+                  </div>
+<!--                  <ngb-progressbar type="danger" [value]="65" height=".3rem"></ngb-progressbar>-->
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 right-grid-spacing">
+                  <div class="banner-img">
+                    <img src="assets/images/banner/4.png" alt="">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12 col-lg-6 col-xl-6 ">
+        <div class="card">
+          <div class="card-header">
+            <h4>Chart Sample</h4>
+          </div>
+          <div class="card-body">
+            <apx-chart [series]="barChartOptions.series!" [chart]="barChartOptions.chart!"
+              [dataLabels]="barChartOptions.dataLabels!" [stroke]="barChartOptions.stroke!"
+              [colors]="barChartOptions.colors!" [title]="barChartOptions.title!" [grid]="barChartOptions.grid!"
+              [tooltip]="barChartOptions.tooltip!" [plotOptions]="barChartOptions.plotOptions!"
+              [yaxis]="barChartOptions.yaxis!" [xaxis]="barChartOptions.xaxis!"></apx-chart>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,80 @@
+<main class="d-flex align-items-center min-vh-100 py-3 py-md-0">
+  <div class="container">
+    <div class="card login-card mb-0">
+      <div class="row no-gutters">
+        <div class="col-md-5">
+          <img src="assets/images/logoODC%20(2).png" alt="login" class="login-card-img">
+          </div>
+          <div class="col-md-7">
+            <div class="login-body">
+              <div class="text-center">
+                <div class="brand-wrapper">
+                  <img src="assets/images/logoODC%20(2).png" alt="logo" class="logo"><span class="logo-name">ODC</span>
+                </div>
+              </div>
+              <form class="validate-form" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+                <div class="row">
+                  <div class="col-lg-12">
+                    <div class="form-group position-relative">
+                      <label>Votre Email <span class="text-danger">*</span></label>
+                      <i-feather name="user" class="login-icons"></i-feather>
+                      <input type="email" class="form-control psl-5" formControlName="username" placeholder="Email">
+                      </div>
+                    <div *ngIf="loginForm.get('username')?.touched && loginForm.get('username')?.invalid">
+                      <small class="text-danger" *ngIf="loginForm.get('username')?.errors?.['required']">
+                        L'email est requis.
+                      </small>
+                      <small class="text-danger" *ngIf="loginForm.get('username')?.errors?.['email']">
+                        Format d'email invalide.
+                      </small>
+                    </div>
+                  </div>
+                    <div class="col-lg-12">
+                      <div class="form-group position-relative">
+                        <label>Mot de Passe <span class="text-danger">*</span></label>
+                        <i-feather name="key" class="login-icons"></i-feather>
+                        <input type="password" class="form-control psl-5" formControlName="password"
+                          placeholder="Password">
+                        </div>
+                      <div *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
+                        <small class="text-danger" *ngIf="loginForm.get('password')?.errors?.['required']">
+                          Le mot de passe est requis.
+                        </small>
+                        <small class="text-danger" *ngIf="loginForm.get('password')?.errors?.['minlength']">
+                          Minimum 6 caractères.
+                        </small>
+                      </div>
+                      </div>
+                      <div class="col-lg-12">
+                        <div class="d-flex justify-content-between">
+                          <div class="form-group">
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" id="customCheck1" formControlName="remember">
+                                <label class="form-check-label" for="customCheck1">
+                                  Remember me
+                                </label>
+                              </div>
+                            </div>
+                            <p class="forgot-pass mb-0"><a routerLink="/authentication/forgot"
+                            class="text-dark fw-bold">Mot De Passe oublié ?</a></p>
+                          </div>
+                        </div>
+                        @if (error) {
+                          <div class="alert alert-danger mb-3 msl-3">{{error}}</div>
+                        }
+                        <div class="col-lg-12 mb-0">
+                          <button class="btn btn-warning auth-form-btn"
+                                  [disabled]="loginForm.invalid"
+                          >
+                            Se connecter
+                          </button>
+                        </div>
+                    </div>
+              </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+</main>
+

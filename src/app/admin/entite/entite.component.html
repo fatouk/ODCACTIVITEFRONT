@@ -1,0 +1,141 @@
+<section class="main-content">
+  <ul class="breadcrumb breadcrumb-style ">
+    <li class="breadcrumb-item">
+      <h5 class="page-title m-b-0">Table</h5>
+    </li>
+    <li class="breadcrumb-item bcrumb-1">
+      <a routerLink="/dashboard/main">
+        <i class="fas fa-home font-17"></i></a>
+    </li>
+    <li class="breadcrumb-item">Entité ODC</li>
+  </ul>
+
+  <div class="d-flex align-items-center gap-3 fs-5 fw-bold">
+    <div class="d-flex flex-column align-items-start bg-warning rounded-pill px-3 py-1">
+      <div class="px-3 pb-0 bg-dark rounded-pill text-white">
+        Nos Entités
+      </div>
+    </div>
+
+    <div class="header-buttons-left">
+      <div class="tbl-btn-style">
+        <button class="btn btn-icon icon-left bg-warning text-white rounded-button" (click)="addRow(addRecord)" >
+          <i class="material-icons">add</i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div  class="fs-5 fw-bold text-dark mt-3">
+    <span class="text-warning">Années en cours</span>: {{ currentYear }}
+  </div>
+
+  <div  class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mt-4">
+    <div
+      *ngFor="let row of entite;"
+      (click)="viewEntiteDetails(row)"
+      class="col"
+    >
+      <div class="card shadow cursor-pointer transition-transform duration-300 scale-100 hover:scale-105">
+        <div class="position-relative">
+          <img
+            [src]="row.logo"
+            alt="{{ row.nom }}"
+            class="card-img-top rounded-top"
+            style="height: 16rem; object-fit: cover;"
+          />
+          <div class="position-absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent rounded-top"></div>
+        </div>
+        <div class="card-body bg-dark text-white p-3">
+          <h3 class="card-title fs-6 fw-semibold">{{ row.nom }}</h3>
+          <p class="card-text mt-2 text-secondary d-flex align-items-center justify-content-between">
+            <span>
+              Activités :
+              @if (row.id && activiteCount[row.id] === undefined) {
+                <div class="spinner-border spinner-border-sm text-warning ms-2" role="status">
+                  <span class="visually-hidden">Chargement...</span>
+                </div>
+              } @else {
+                <span class="ms-2">{{ row.id ? (activiteCount[row.id] || 0) : 'ID non défini' }}</span>
+              }
+            </span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #addRecord let-modal>
+      <div class="modal-header editRowModal">
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
+          <span aria-hidden="true"><i class="material-icons">close</i></span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form class="register-form" [formGroup]="register" (ngSubmit)="onAddRowSave(register)">
+          <div class="row">
+            <div class="col-xl-12 col-lg-6 col-md-12 col-sm-12 mb-2">
+              <label>Nom <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" placeholder="Nom" formControlName="nom"
+                     required>
+              @if (!register.get('nom')?.valid && register.get('nom')?.touched) {
+                <small class="form-text text-danger"> Le nom est obligatoire</small>
+              }
+            </div>
+            <div class="form-group">
+              <label>Description<span class="text-danger">*</span></label>
+              <textarea type="text" class="form-control" placeholder="description" formControlName="description"></textarea>
+              @if (!register.get('prenom')?.valid && register.get('prenom')?.touched) {
+                <small class="form-text text-danger"> Prenom est obligatoire</small>
+              }
+            </div>
+          </div>
+
+
+          <div class="row">
+            <div class="section-title">Logo</div>
+            <div class="custom-file">
+              <input type="file" (change)="onFileChange($event)" class="custom-file-input" id="customFile"  formControlName="logo">
+              <label class="custom-file-label" for="customFile">Choisissez une image</label>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-xl-12 col-lg-6 col-md-12 col-sm-12 mb-2">
+              <label>Responsable <span class="text-danger">*</span></label>
+              <select class="form-select form-control" formControlName="responsable" required>
+                <option value="" [ngValue]="null" disabled>-- Sélectionnez un utilisateur --</option>
+                <option *ngFor="let responsables of users" [ngValue]="responsables.id">{{responsables.nom}} {{responsables.prenom}}</option>
+              </select>
+              @if (!register.get('responsable')?.valid && register.get('responsable')?.touched) {
+                <small class="form-text text-danger"> Responsable est obligatoire</small>
+              }
+            </div>
+
+            <div class="col-xl-12 col-lg-6 col-md-12 col-sm-12 mb-2">
+              <label>Type Activite <span class="text-danger">*</span></label>
+              <select  class="form-control h-100" multiple="" formControlName="typeActivite">
+                <option value="" [ngValue]="null" disabled>&#45;&#45; Sélectionnez un ou plusieurs TypeActivite &#45;&#45;</option>
+                <option *ngFor="let typeActivite of allTypeActivite" [ngValue]="typeActivite.id">{{typeActivite.type}}</option>
+              </select>
+              @if (!register.get('allTypeActivite')?.valid && register.get('allTypeActivite')?.touched) {
+                <small class="form-text text-danger"> Type Activite est obligatoire</small>
+              }
+              <div class="mt-1 text-gray-500 mt-3 text-sm">Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs options.</div>
+            </div>
+          </div>
+
+          <div class="modal-footer mt-3">
+            <button type="submit" class="btn btn-warning text-white" [disabled]="!register.valid || loadingIndicator">
+              <span *ngIf="loadingIndicator" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+              {{ loadingIndicator ? 'Chargement...' : 'Enregistre' }}
+            </button>
+
+            <button type="button" class="btn btn-dark text-white" (click)="modal.close('Close click')">Fermer</button>
+          </div>
+        </form>
+      </div>
+    </ng-template>
+  </div>
+
+</section>
+
