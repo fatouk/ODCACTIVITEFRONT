@@ -155,8 +155,6 @@
               </ngx-datatable-column>
             </ngx-datatable>
 
-
-
             <!-- Add Record Modal Window -->
             <ng-template #addRecord let-modal>
               <div class="modal-header editRowModal">
@@ -165,6 +163,7 @@
                 </button>
               </div>
               <div class="modal-body">
+               <h4>Nouvelle Activité</h4> 
                 <form class="register-form" [formGroup]="register" (ngSubmit)="onAddRowSave(register)" enctype="multipart/form-data">
                   <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
@@ -275,7 +274,7 @@
                   </div>
                    <div class="form-group mt-3">
     <label for="fichier">Fichier joint :</label>
-    <input
+    <input 
       type="file"
       id="fichier"
       (change)="onFileSelected($event)"

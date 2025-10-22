@@ -2,7 +2,7 @@ export class ActivityValidation {
   id?: number;
   commentaire?: string;
   date?: string;
-  statut?: 'En_Attente' | 'VALIDÉ' | 'REJETÉ';
+  statut?: 'En_Attente' | 'Valider' | 'Rejeter';
   fichierChiffre?: Blob;
   fichierjoint?: string;
   activiteId?: number;

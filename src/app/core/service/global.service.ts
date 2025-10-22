@@ -1,4 +1,4 @@
-import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {HttpClient, HttpErrorResponse, HttpResponse} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ActivityValidation } from '@core/models/ActivityValidation';
 import { environment } from 'environments/environment.development';
@@ -201,7 +201,7 @@ export class GlobalService {
     const formData = new FormData();
     if (fichier) {
        console.log('Appel GET à l\'endpoint :', `${this.baseUrl}/activitevalidation/create`);
-      console.log('Fichier à envoyer:', fichier, ) ;    
+        console.log('Fichier à envoyer:', fichier, ) ;    
           formData.append('fichier', fichier);
     }
     formData.append('validation', new Blob([JSON.stringify(validation)], {type: 'application/json' }));
@@ -215,4 +215,14 @@ export class GlobalService {
 getActivitesEnAttenteBySuperviseur(superviseurId: number): Observable<any[]> {
   return this.http.get<any[]>(`${this.baseUrl}/activite/superviseur/${superviseurId}/attente`);
 }
+getFichierUrl(id: number): Observable<any[]> {
+  return this.http.get<any[]>(`${this.baseUrl}/activitevalidation/{id}/fichier`);
+
+}
+ getValidationFileResponse(validationId: number): Observable<HttpResponse<Blob>> {
+    return this.http.get(`${this.baseUrl}/activitevalidation/${validationId}/fichier`, {
+      observe: 'response',
+      responseType: 'blob'
+    });
+  }
 }

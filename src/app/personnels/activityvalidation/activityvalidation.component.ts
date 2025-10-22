@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, NgZone, ViewChild } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule,
+  ReactiveFormsModule, } from '@angular/forms';
 import { AuthService } from '@core';
 import { ActivityValidation } from '@core/models/ActivityValidation';
 import { Utilisateur } from '@core/models/Utilisateur';
@@ -16,9 +17,10 @@ import Swal from 'sweetalert2';
 import { C } from '@angular/cdk/scrolling-module.d-ud2XrbF8';
 import { co } from '@fullcalendar/core/internal-common';
 import { CommonModule } from '@angular/common';
+import { HttpResponse } from '@angular/common/module.d-CnjH8Dlt';
 @Component({
   selector: 'app-activityvalidation',
-  imports: [NgxDatatableModule, CommonModule],
+  imports: [NgxDatatableModule, CommonModule,ReactiveFormsModule, FormsModule],
   templateUrl: './activityvalidation.component.html',
   styleUrl: './activityvalidation.component.scss'
 })
@@ -31,6 +33,8 @@ export class ActivityvalidationComponent {
   activite:  Activity[] = [];
   activiteval:  Activity[] = [];
   activitesEnAttente: Activity[] = [];
+  activitevalidation: ActivityValidation[] = [];
+  superviseurMap: Record<number, string> = {};
   entite:  Entite[] = [];
   etape:  Etape[] = [];
   salleId:  Salle[] = [];
@@ -50,6 +54,9 @@ export class ActivityvalidationComponent {
   showCommentaire: boolean = false;
   selectedFile: File | null = null;
   activityValidation: ActivityValidation = new ActivityValidation();
+  selectedActivite?: Activity = new Activity();
+  @ViewChild('validationModal') validationModal: any;
+  validationForm!: UntypedFormGroup;
   //Constructeur
   constructor(private zone: NgZone,
     private cdr: ChangeDetectorRef,
@@ -103,13 +110,12 @@ export class ActivityvalidationComponent {
     this.getAllTypeActivite();
     this.getAllSalle();  
     this.getAllUtilisateur();
+    this.getMapSuperviseur();
     this.getActivitesForSuperviseur();
     this.getCurrentUserId();
     
       }
-      editRow2(){
-        console.log("edit row");
-      }
+    
       // fetch data
  getAllUtilisateur(){
     this.loadingIndicator = true;
@@ -125,7 +131,19 @@ export class ActivityvalidationComponent {
       }
     })
   }
-
+getMapSuperviseur(): void {
+  this.glogalService.get('utilisateur').subscribe({
+    next: (data) => {
+      this.superviseurMap = Object.fromEntries(
+        data.map((s: any) => [s.id, s.nom+'-'+s.prenom])
+      );
+      console.log('SuperviseurMap chargée :', this.superviseurMap);
+    },
+    error: (err) => {
+      console.error('Erreur lors du chargement des superviseurs', err);
+    }
+  });
+}
   getAllActivite(){
     this.loadingIndicator = true;
     this.glogalService.get('activite').subscribe({
@@ -194,7 +212,7 @@ export class ActivityvalidationComponent {
       this.loadingIndicator = false;}
 }
 
-     async onAddRowSaveOld(form: UntypedFormGroup) {
+async onAddRowSaveOld(form: UntypedFormGroup) {
   if (form.invalid) return;
   this.loadingIndicator = true;
   const activiteData = { ...form.value };
@@ -283,6 +301,25 @@ async onAddRowSave(form: UntypedFormGroup) {
   });
 }
 
+downloadOrOpenFile(validationId: number, openInNewTab = false) {
+  this.glogalService.getValidationFileResponse(validationId).subscribe({
+    next: (resp) => {
+      const blobf = resp.body;
+      const contentDisp = resp.headers.get('content-disposition') || '';
+      const match = /filename="?([^"]+)"?/.exec(contentDisp);
+      const filename = match ? match[1] : 'fichier.bin';
+
+      const url = window.URL.createObjectURL(blobf!);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    },
+    error: (err) => console.error('Erreur téléchargement :', err)
+  });
+}
+
 
 addSuccessMessage(duration: number = 3000) {
   Swal.fire({
@@ -294,10 +331,33 @@ addSuccessMessage(duration: number = 3000) {
     timerProgressBar: true,
   }); 
 }
+editSuccessMessage(duration: number = 3000) {
+  Swal.fire({
+    icon: 'success',
+    title: 'Succès',
+    text: 'L’activité a été modifiée avec succès !',
+    showConfirmButton: false,
+    timer: duration,
+    timerProgressBar: true,
+  }); 
+}
 reloadActivities() {
   this.glogalService.get('activite').subscribe({
     next: (data) => {
       this.activite = Array.isArray(data) ? data : [];
+      this.loadingIndicator = false;
+      this.cdr.detectChanges(); // force Angular à rafraîchir l'affichage
+    },
+    error: (err) => {
+      this.loadingIndicator = false;
+      console.error('Erreur lors du rechargement des activités :', err);
+    },
+  });
+}
+reloadActivitieValidations() {
+  this.glogalService.get('activitevalidation').subscribe({
+    next: (data) => {
+      this.activitevalidation = Array.isArray(data) ? data : [];
       this.loadingIndicator = false;
       this.cdr.detectChanges(); // force Angular à rafraîchir l'affichage
     },
@@ -324,6 +384,8 @@ reloadActivities() {
       ariaLabelledBy: 'modal-basic-title',
       size: 'lg',
     });
+
+
 
     // Préparer les IDs d'étapes sélectionnées
    // this.selectedEtapeIds = row.etapes?.map((e: any) => e.id) || []; // Notez: 'etapes' au lieu de 'etape'
@@ -352,6 +414,57 @@ this.selectedEtapeIds = etapes.map((e: any) => e.id);
 
     this.selectedRowData = row;
   }
+  editRow2(row:any,editRecord:any){
+    this.selectedActivite=row;
+    this.modalService.open(editRecord, {
+      ariaLabelledBy: 'modal-basic-title',});
+      this.selectedRowData = row;
+      console.log("edit row",row);
+    };
+    editRowValidation(row:any,validationRecord:any){
+      console.log("validation row",row);
+      this.selectedActivite=row;
+    this.validationForm = this.fb.group({
+      statut: ['', Validators.required],      // Acceptee ou Rejetee
+      superviseurId: [''],                           // Optionnel
+      commentaire: [''],                           // Optionnel
+      fichierjoint: [null],                             // Optionnel
+    });
+
+    this.modalService.open(this.validationModal, { size: 'lg', centered: true });
+  }
+// Save validation by activity
+onValidate() {
+    if (this.validationForm.invalid) {
+      this.validationForm.markAllAsTouched();
+      return;
+    }
+    const fichierChiffre  = this.selectedFile || null;
+    const fichierjoint = this.selectedFile?.name || null;
+    console.log("fichier joint", fichierjoint);
+    console.log("fichier chiffre", fichierChiffre);
+    const formData = new FormData();
+    const validation: ActivityValidation = {
+      activiteId: this.selectedActivite?.id,
+      statut: this.validationForm.value.statut,
+      superviseurId: this.validationForm.value.superviseurId || undefined,
+      commentaire: this.validationForm.value.commentaire || undefined,
+     fichierjoint: fichierjoint || undefined,
+     fichierChiffre:fichierChiffre || undefined
+    };
+
+    
+    this.glogalService.createValidation(validation,fichierChiffre!).subscribe({
+      next: () => {
+        this.modalService.dismissAll();
+        this.editSuccessMessage(3000);
+        this.reloadActivities();
+        this.reloadActivitieValidations();
+      },
+      error: (err) => console.error('Erreur validation :', err),
+    });
+  }  
+ 
 
   onEditSave(form: UntypedFormGroup) {
     console.log("modification", form.value);
@@ -414,6 +527,7 @@ onSuperviseurSelected(event: any) {
   if (superviseurId) {
     // Stocker l’ID sélectionné dans le form
     this.register.patchValue({ superviseurId });
+     this.validationForm.patchValue({ superviseurId });
 
     // Afficher le champ commentaire (tu peux gérer ça via un booléen)
     this.showCommentaire = true;
@@ -424,23 +538,30 @@ onSuperviseurSelected(event: any) {
   }
 }
 
-// VERSION CORRIGÉE - Ne pas mettre à jour le formulaire dans onEtapesChange
-  onEtapesChange(selectedIds: number[]) {
-    console.log('Etapes sélectionnées ont changé:', selectedIds);
-    // Seulement mettre à jour la variable, PAS le formulaire
-    this.selectedEtapeIds = selectedIds;
+onSuperviseurSelectedVal(event: any) {
+  const superviseurId = event.target.value;
 
-    // Si vous avez besoin de faire quelque chose d'autre avec les étapes filtrées
-    const filteredEtapes = this.etape.filter(etape =>
-      etape && selectedIds.includes(etape.id!)
-    );
+  if (superviseurId) {
+    // Stocker l’ID sélectionné dans le form
+      this.validationForm.patchValue({ superviseurId });
 
-    console.log('Etapes filtrées:', filteredEtapes);
-
-    // NE PAS FAIRE CECI - cela cause la récursion infinie :
-    // this.editForm.patchValue({ etape: selectedIds });
+    // Afficher le champ commentaire (tu peux gérer ça via un booléen)
+    this.showCommentaire = true;
+  } else {
+    // Si aucun superviseur choisi, on masque le champ commentaire
+    this.showCommentaire = false;
+    this.validationForm.patchValue({ superviseurId: null, commentaire: '' });
   }
-
+}
+onFileSelectedVal(event: any): void {
+  const file = event.target.files[0];
+  if (file) {
+    this.selectedFile = file;
+    this.validationForm.patchValue({ fichier: file });
+    this.validationForm.get('fichier')?.updateValueAndValidity();
+    console.log('Fichier sélectionné :', file.name);
+  }
+}
 
   // delete single row
   deleteSingleRow(row: any) {
@@ -583,6 +704,7 @@ getActivitesEnAttenteForSuperviseur() {
 }
 
 export interface selectActiviteInterface {
+  id?: number | undefined
   nom: string;
   titre: string;
   lieu: string;
@@ -594,6 +716,7 @@ export interface selectActiviteInterface {
   etape: Etape;
   salleId: Salle;
   typeActivite: TypeActivite;
+  activitevalidation: ActivityValidation[];
 }
 
 
