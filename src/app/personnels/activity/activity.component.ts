@@ -25,7 +25,7 @@ import { timer } from 'rxjs';
 import { A } from '@angular/cdk/activedescendant-key-manager.d-Bjic5obv';
 import { ActivityValidation } from '@core/models/ActivityValidation';
 import { Utilisateur } from '@core/models/Utilisateur';
-import { co } from '@fullcalendar/core/internal-common';
+
 
 @Component({
   selector: 'app-activity',
@@ -54,6 +54,7 @@ export class ActivityComponent {
   selectedRowData!: selectActiviteInterface;
   filteredData: any[] = [];
   editForm: UntypedFormGroup;
+  detailForm: UntypedFormGroup;
   register!: UntypedFormGroup;
   loadingIndicator = true;
   isRowSelected = false;
@@ -64,6 +65,7 @@ export class ActivityComponent {
   utilisateursPersonnels: Utilisateur[] = [];
   showCommentaire: boolean = false;
   selectedFile: File | null = null;
+  currentUserId: number | null = this.getCurrentUserId();
   activityValidation: ActivityValidation = new ActivityValidation();
   columns = [
     { prop: 'nom' },
@@ -86,6 +88,26 @@ export class ActivityComponent {
     private authService: AuthService
   ) {
     this.editForm = this.fb.group({
+      id: new UntypedFormControl(),
+      nom: new UntypedFormControl(),
+      titre: new UntypedFormControl(),
+      lieu: new UntypedFormControl(),
+      description: new UntypedFormControl(),
+      dateDebut: new UntypedFormControl(),
+      dateFin: new UntypedFormControl(),
+      objectifParticipation: new UntypedFormControl(),
+      entite: new UntypedFormControl(),
+      salleId: new UntypedFormControl(),
+      //typeId: new UntypedFormControl(),
+      typeActivite: new UntypedFormControl(),
+      etape: new UntypedFormControl(),
+      selectedEtapeIds: new UntypedFormControl(),
+      commentaire: new UntypedFormControl(),
+      superviseurId: new UntypedFormControl(),
+      fichier: new UntypedFormControl(),
+      fichierjoint: new UntypedFormControl(),
+    });
+     this.detailForm = this.fb.group({
       id: new UntypedFormControl(),
       nom: new UntypedFormControl(),
       titre: new UntypedFormControl(),
@@ -151,7 +173,8 @@ export class ActivityComponent {
     this.getAllTypeActivite();
     this.getAllSalle();  
     this.getAllUtilisateur();
-    this.register = this.fb.group({
+  // initialize form group
+   this.register = this.fb.group({
       id: [''],
       nom: ['', [Validators.required]],
       titre: ['', [Validators.required]],
@@ -164,6 +187,24 @@ export class ActivityComponent {
       //etape: [null, [Validators.required]],
       salleId: [null, [Validators.required]],
       //typeId: [null, [Validators.required]],
+      typeActivite: [null, [Validators.required]],
+      superviseurId: [null],
+      commentaire: [''],
+      fichier: [null],
+      fichierjoint: [''],
+    });
+     this.detailForm = this.fb.group({
+      id: [''],
+      nom: [{ value: this.selectedRowData.nom, disabled: true }, [Validators.required]],      titre: ['', [Validators.required]],
+      lieu: ['', [Validators.required]],
+      description: ['', [Validators.required]],
+      dateDebut: ['', [Validators.required]],
+      dateFin: ['', [Validators.required]],
+      objectifParticipation: [null, [Validators.required]],
+      entite: [null, [Validators.required]],
+      etape: [null, [Validators.required]],
+      salleId: [null, [Validators.required]],
+      typeId: [null, [Validators.required]],
       typeActivite: [null, [Validators.required]],
       superviseurId: [null],
       commentaire: [''],
@@ -192,6 +233,7 @@ export class ActivityComponent {
     this.loadingIndicator = true;
     this.glogalService.get('activite').subscribe({
       next:(value: Activity[]) =>{
+          console.log("Activites :", value)
         this.activite = value;
         this.filteredData = [...value];
         setTimeout(() =>{
@@ -200,19 +242,9 @@ export class ActivityComponent {
       }
     })
   }
-  getAllEntite2(){
-this.glogalService.get2('entite').subscribe({
-  next: (response) => {
-    console.log('Réponse API :', response);
-  },
-  error: (err) => {
-    console.error('Erreur API :', err);
-  }
-});
-  }
+ 
   getAllEntite(){
-    this.loadingIndicator = true;
-     
+    this.loadingIndicator = true;     
     this.glogalService.get('entite').subscribe({
       next:(value: Entite[]) =>{
         this.entite = value;
@@ -411,6 +443,27 @@ async onAddRowSaveOld2(form: UntypedFormGroup) {
     }
   });
 }
+
+getCurrentUserId(): number | null {
+  const raw = localStorage.getItem('bearerid');
+  console.log('Raw currentUser from localStorage:', raw);
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw);
+    // si le stockage est juste un id string, parsed sera une string
+    if (typeof parsed === 'number') return parsed;
+    if (typeof parsed === 'string') return parseInt(parsed, 10);
+    // sinon on cherche parsed.id
+    if (parsed ) return Number(parsed);
+    return null;
+  } catch {
+    // raw n'était pas JSON (peut être un id en string)
+    const val = parseInt(raw, 10);
+    return isNaN(val) ? null : val;
+  }
+}
+// CREATION NOVELLE ACTIVITE AVEC OU SANS VALIDATION
 async onAddRowSave(form: UntypedFormGroup) {
   if (form.invalid) return;
   this.loadingIndicator = true;
@@ -423,13 +476,13 @@ async onAddRowSave(form: UntypedFormGroup) {
       // Vérifie si un superviseur est sélectionné
       const superviseurId = form.value.superviseurId;
       const fichierjoint = form.value.fichierjoint || null;
-console.log("Fichier joint :", fichierjoint);
-console.log("Superviseur ID :", superviseurId);
+
       if (superviseurId) {
-        console.log("🟡 Création de validation pour superviseur :", superviseurId);
+        console.log(" Création de validation pour superviseur :", superviseurId);
 
         // Prépare la validation
         const validation: ActivityValidation = {
+          envoyeurId: this.getCurrentUserId() || undefined,
           activiteId: activite.id,
           superviseurId,
           commentaire: form.value.commentaire || null,
@@ -442,14 +495,14 @@ console.log("Superviseur ID :", superviseurId);
         // Étape 2 : Création de la validation
         this.glogalService.createValidation(validation, fichier).subscribe({
           next: () => {
-            console.log("✅ Validation créée !");
+            console.log(" Validation créée !");
             this.addRecordSuccess();
             this.modalService.dismissAll();
             this.reloadActivities();
             form.reset();
           },
           error: (err) => {
-            console.error("❌ Erreur validation :", err);
+            console.error("Erreur validation :", err);
             this.loadingIndicator = false;
           },
           complete: () => {
@@ -457,7 +510,7 @@ console.log("Superviseur ID :", superviseurId);
           }
         });
       } else {
-        console.log("ℹ️ Aucun superviseur — pas de validation créée.");
+        // Pas de superviseur sélectionné, on saute la création de validation
         this.addRecordSuccess();
         this.modalService.dismissAll();
         this.reloadActivities();
@@ -471,8 +524,6 @@ console.log("Superviseur ID :", superviseurId);
     }
   });
 }
-
-
 
 addSuccessMessage(duration: number = 3000) {
   Swal.fire({
@@ -508,7 +559,40 @@ reloadActivities() {
 
   selectedEtapeIds: number[] = [];
   
+ detailRow(row: any, rowIndex: number, content: any) {
+    this.getAllEtape();
+    this.modalService.open(content, {
+      ariaLabelledBy: 'modal-basic-title',
+      size: 'lg',
+    });
+    // Préparer les IDs d'étapes sélectionnées
+   // this.selectedEtapeIds = row.etapes?.map((e: any) => e.id) || []; // Notez: 'etapes' au lieu de 'etape'
+//code fatou, pour verifier si l'etape est un tableau ou un objet et si c'est null
+   const etapes = Array.isArray(row.etapes)
+  ? row.etapes
+  : row.etapes
+    ? [row.etapes]
+    : [];
 
+this.selectedEtapeIds = etapes.map((e: any) => e.id);
+    this.detailForm.patchValue({
+      id: row.id,
+      nom: row.nom,
+      titre: row.titre,
+      lieu: row.lieu,
+      description: row.description,
+      dateDebut: row.dateDebut,
+      dateFin: row.dateFin,
+      objectifParticipation: row.objectifParticipation,
+      entite: row.entite?.id,
+      etape: this.selectedEtapeIds, // Utiliser directement selectedEtapeIds
+      salleId: row.salleId?.id,
+      typeActivite: row.typeActivite?.id,
+    });
+// console.log("selectedEtapeIds au niveau composant :", this.selectedEtapeIds);
+
+    this.selectedRowData = row;
+  }
   editRow(row: any, rowIndex: number, content: any) {
     this.getAllEtape();
     this.modalService.open(content, {
@@ -539,7 +623,7 @@ this.selectedEtapeIds = etapes.map((e: any) => e.id);
       salleId: row.salleId?.id,
       typeActivite: row.typeActivite?.id,
     });
-console.log("selectedEtapeIds au niveau composant :", this.selectedEtapeIds);
+// console.log("selectedEtapeIds au niveau composant :", this.selectedEtapeIds);
 
     this.selectedRowData = row;
   }
@@ -720,9 +804,20 @@ onSuperviseurSelected(event: any) {
   deleteRecordSuccess(count: number) {
     this.toastr.error(count + 'Suppresion faite avec succès.', '');
   }
-
+isSelected(row: any): boolean {  
+  return this.selected.some((r) => r.toFixed === row.id);
 }
 
+onRowCheckboxChange(row: any, event: any) {
+  if (event.target.checked) {
+    this.isRowSelected = true;
+    this.selected = [...this.selected, row];
+  } else {
+    this.isRowSelected = false;
+    this.selected = this.selected.filter((r) => r.toFixed !== row.id);
+  
+}
+}}
 export interface selectActiviteInterface {
   nom: string;
   titre: string;

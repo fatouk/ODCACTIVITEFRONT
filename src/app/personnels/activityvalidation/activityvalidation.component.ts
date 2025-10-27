@@ -35,6 +35,7 @@ export class ActivityvalidationComponent {
   activitesEnAttente: Activity[] = [];
   activitevalidation: ActivityValidation[] = [];
   superviseurMap: Record<number, string> = {};
+  envoyeurMap: Record<number, string> = {};
   entite:  Entite[] = [];
   etape:  Etape[] = [];
   salleId:  Salle[] = [];
@@ -55,6 +56,8 @@ export class ActivityvalidationComponent {
   selectedFile: File | null = null;
   activityValidation: ActivityValidation = new ActivityValidation();
   selectedActivite?: Activity = new Activity();
+  currentUserId: number | null = null;
+  canDelete: boolean = false;
   @ViewChild('validationModal') validationModal: any;
   validationForm!: UntypedFormGroup;
   //Constructeur
@@ -111,9 +114,10 @@ export class ActivityvalidationComponent {
     this.getAllSalle();  
     this.getAllUtilisateur();
     this.getMapSuperviseur();
+    this.getMapEnvoyeur();
     this.getActivitesForSuperviseur();
     this.getCurrentUserId();
-    
+    currentUserId: this.getCurrentUserId();
       }
     
       // fetch data
@@ -141,6 +145,19 @@ getMapSuperviseur(): void {
     },
     error: (err) => {
       console.error('Erreur lors du chargement des superviseurs', err);
+    }
+  });
+}
+getMapEnvoyeur(): void {
+  this.glogalService.get('utilisateur').subscribe({
+    next: (data) => {
+      this.envoyeurMap = Object.fromEntries(
+        data.map((s: any) => [s.id, s.nom+'-'+s.prenom])
+      );
+      console.log('EnvoyeurMap chargée :', this.envoyeurMap);
+    },
+    error: (err) => {
+      console.error('Erreur lors du chargement des senvoyer', err);
     }
   });
 }
@@ -212,44 +229,7 @@ getMapSuperviseur(): void {
       this.loadingIndicator = false;}
 }
 
-async onAddRowSaveOld(form: UntypedFormGroup) {
-  if (form.invalid) return;
-  this.loadingIndicator = true;
-  const activiteData = { ...form.value };
 
-  // Créer l'Activite
-  this.glogalService.post('activite', activiteData).subscribe({
-    next: (activite: Activity) => {
-      console.log("Activite crée ", activite);
-
-      // Créer la Validation en utilisant l'ID de l'Activite créé
-      const validation: ActivityValidation = {
-        activiteId: activite.id,
-        superviseurId: form.value.superviseurId,
-        commentaire: form.value.commentaire,
-        statut: 'En_Attente',
-        fichierjoint: form.value.fichierjoint || null
-      };
-
-      const fichier: File | undefined = form.value.fichier;
-
-      this.glogalService.createValidation(validation, fichier).subscribe({
-        next: () => {
-          this.addRecordSuccess();
-          this.modalService.dismissAll();
-          form.reset();
-          this.reloadActivities();
-        },
-        error: (err) => console.error('Erreur validation', err),
-        complete: () => this.loadingIndicator = false
-      });
-    },
-    error: (err) => {
-      console.error('Erreur activité', err);
-      this.loadingIndicator = false;
-    }
-  });
-}
 async onAddRowSave(form: UntypedFormGroup) {
   if (form.invalid) return;
   this.loadingIndicator = true;
@@ -416,6 +396,7 @@ this.selectedEtapeIds = etapes.map((e: any) => e.id);
   }
   editRow2(row:any,editRecord:any){
     this.selectedActivite=row;
+     this.updateDeleteRights(row);
     this.modalService.open(editRecord, {
       ariaLabelledBy: 'modal-basic-title',});
       this.selectedRowData = row;
@@ -441,10 +422,9 @@ onValidate() {
     }
     const fichierChiffre  = this.selectedFile || null;
     const fichierjoint = this.selectedFile?.name || null;
-    console.log("fichier joint", fichierjoint);
-    console.log("fichier chiffre", fichierChiffre);
-    const formData = new FormData();
-    const validation: ActivityValidation = {
+    
+      const validation: ActivityValidation = {
+      envoyeurId: this.getCurrentUserId() || undefined,
       activiteId: this.selectedActivite?.id,
       statut: this.validationForm.value.statut,
       superviseurId: this.validationForm.value.superviseurId || undefined,
@@ -452,8 +432,7 @@ onValidate() {
      fichierjoint: fichierjoint || undefined,
      fichierChiffre:fichierChiffre || undefined
     };
-
-    
+  
     this.glogalService.createValidation(validation,fichierChiffre!).subscribe({
       next: () => {
         this.modalService.dismissAll();
@@ -512,39 +491,12 @@ onValidate() {
       });
     }
   }
-onFileSelected(event: any): void {
-  const file = event.target.files[0];
-  if (file) {
-    this.selectedFile = file;
-    this.register.patchValue({ fichier: file });
-    this.register.get('fichier')?.updateValueAndValidity();
-    console.log('Fichier sélectionné :', file.name);
-  }
-}
-onSuperviseurSelected(event: any) {
-  const superviseurId = event.target.value;
-
-  if (superviseurId) {
-    // Stocker l’ID sélectionné dans le form
-    this.register.patchValue({ superviseurId });
-     this.validationForm.patchValue({ superviseurId });
-
-    // Afficher le champ commentaire (tu peux gérer ça via un booléen)
-    this.showCommentaire = true;
-  } else {
-    // Si aucun superviseur choisi, on masque le champ commentaire
-    this.showCommentaire = false;
-    this.register.patchValue({ superviseurId: null, commentaire: '' });
-  }
-}
 
 onSuperviseurSelectedVal(event: any) {
   const superviseurId = event.target.value;
-
   if (superviseurId) {
     // Stocker l’ID sélectionné dans le form
       this.validationForm.patchValue({ superviseurId });
-
     // Afficher le champ commentaire (tu peux gérer ça via un booléen)
     this.showCommentaire = true;
   } else {
@@ -579,6 +531,72 @@ onFileSelectedVal(event: any): void {
       }
     });
   }
+
+  canDeleteValidation(validation: any, activite: any): boolean {
+  // Vérifie qu’il y a au moins une validation
+  console.log('this.activitevalidation?.length :', this.activitevalidation?.length)
+  if (!this.activitevalidation?.length) return false;
+
+  // Trie les validations par date (la plus récente en dernier)
+  const sorted = [...this.activitevalidation].sort(
+    (a, b) => new Date(a.date!).getTime() - new Date(b.date!).getTime()
+  );
+
+  const lastValidation = sorted[sorted.length - 1];
+
+  // ✅ Les deux conditions doivent être vraies :
+  // 1️⃣ La validation affichée est la dernière
+  // 2️⃣ L’utilisateur courant est l’envoyeur
+  return ( lastValidation.id === validation.id &&
+    validation.envoyeurId === this.getCurrentUserId()); 
+}
+updateDeleteRights(activite: any) {
+   if (!activite?.activitevalidation?.length) {
+    this.canDelete = false;
+    return;
+  }
+
+  const validations = [...activite.activitevalidation].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
+
+  const lastValidation = validations[validations.length - 1];
+  const currentUserId = this.getCurrentUserId();
+  console.log('Last validation:', lastValidation);
+  console.log('Current user ID:', currentUserId);
+   console.log(this.canDelete = lastValidation.envoyeurId === currentUserId);
+activite.activitevalidation = validations.map((val: any) => {
+    return {
+      ...val,
+      canDelete:
+        val.id === lastValidation.id && val.envoyeurId === currentUserId
+    };
+  });
+  // ✅ On met la valeur à true seulement si :
+  // 1️⃣ c’est la dernière validation
+  // 2️⃣ l’envoyeur est l’utilisateur courant
+  this.canDelete = lastValidation.envoyeurId === currentUserId;
+}
+
+deleteValidation(valid:number): void {
+  Swal.fire({
+    title: 'Confirmer la suppression de cette validation ?',
+    showCancelButton: true,
+    confirmButtonColor: '#8963ff',
+    cancelButtonColor: '#fb7823',
+    confirmButtonText: 'Oui, supprimer !',
+    cancelButtonText: 'Annuler'
+  }).then((result) => {
+    if (result.value) {
+      this.glogalService.delete('activitevalidation', valid).subscribe({
+        next: () => {
+          this.toastr.success('Validation supprimée avec succès.', '');
+          this.reloadActivitieValidations();
+        }
+      });
+    }
+  });
+}
 
   getCurrentUserId(): number | null {
   const raw = localStorage.getItem('bearerid');

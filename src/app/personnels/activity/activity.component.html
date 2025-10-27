@@ -56,9 +56,18 @@
                            columnMode="force" [headerHeight]="60" [footerHeight]="80" rowHeight="auto" [limit]="10"
                            [scrollbarH]="scrollBarHorizontal" [reorderable]="reorderable" [selected]="selected"
                            [selectionType]="selection" (select)='onSelect($event)'>
-              <ngx-datatable-column [width]="70" [sortable]="false" [draggable]="false" [resizeable]="false"
-                                    [canAutoResize]="false" [headerCheckboxable]="true" [checkboxable]="true">
-              </ngx-datatable-column>
+              <ngx-datatable-column   [width]="70" [sortable]="false" [draggable]="false" [resizeable]="false"
+                                    [canAutoResize]="false" [headerCheckboxable]="true" [checkboxable]="false">
+              
+              <ng-template ngx-datatable-cell-template let-row="row">
+    <input
+      *ngIf="row.createdBy?.id === currentUserId"
+      type="checkbox"
+      [checked]="isSelected(row)"
+      (change)="onRowCheckboxChange(row, $event)"
+    />
+  </ng-template>
+                                  </ngx-datatable-column>
               <ngx-datatable-column [width]="150" name="Nom">
                 <ng-template let-row="row" let-value="value" let-i="index" ngx-datatable-cell-template>
                   <div class="name-col-style">
@@ -137,12 +146,17 @@
                 <ng-template let-value="value" let-row="row" let-rowIndex="rowIndex" ngx-datatable-cell-template>
                   <span>
                     <button
-                      *ngIf="useRole.includes('PERSONNEL')"
+                      *ngIf="useRole.includes('PERSONNEL') " 
+                      class="btn btn-tbl-edit h-auto" (click)='detailRow(row, rowIndex, detailRecord)'>
+                      <i class="fas fa-eye"></i>
+                    </button>
+                    <button
+                      *ngIf="useRole.includes('PERSONNEL') && row.createdBy.id === currentUserId" 
                       class="btn btn-tbl-edit h-auto" (click)='editRow(row, rowIndex, editRecord)'>
                       <i class="fas fa-pen"></i>
                     </button>
                     <button
-                      *ngIf="useRole.includes('PERSONNEL')"
+                      *ngIf="useRole.includes('PERSONNEL') && row.createdBy.id === currentUserId"
                       class="btn btn-tbl-delete h-auto" (click)='deleteSingleRow(row)'>
                       <i class="far fa-trash-alt"></i>
                     </button>
@@ -439,6 +453,122 @@
                       <span *ngIf="loadingIndicator" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
                       {{ loadingIndicator ? 'Chargement...' : 'Enregistre' }}
                     </button>
+
+                    <button type="button" class="btn btn-dark text-white" (click)="modal.close('Close click')">Fermer</button>
+                  </div>
+                </form>
+              </div>
+            </ng-template>
+             <!-- Details Record Modal Window -->
+            <ng-template #detailRecord let-modal>
+              <div class="modal-header editRowModal">
+                <h4 class="modal-title" id="modal-basic-title">
+                  <div class="table-modal-header">
+                    <div class="modal-about">
+                      <div class="fw-bold p-t-10 font-17">
+                       <h3 class="detail">Détails de l'activite:</h3> {{selectedRowData!.nom}}
+                      </div>
+                    </div>
+                  </div>
+                </h4>
+                <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+                  <span aria-hidden="true"><i class="material-icons">close</i></span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form [formGroup]="detailForm" >
+                  <div class="input-field col s12 d-none">
+                    <input formControlName="id" class="form-control" type="hidden">
+                  </div>
+                  <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Nom <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" placeholder="Nom activité" formControlName="nom"
+                              readonly>
+                     
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Titre <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" placeholder="Titre activité" formControlName="titre"
+                             readonly>
+                      
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Lieu <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" placeholder="Lieu activité" formControlName="lieu"
+                             readonly>
+                      
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Description <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" placeholder="Description activité" formControlName="description"
+                             readonly>
+                     
+                    </div>
+                    <div class="col-xl-12 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Objectif Participant <span class="text-danger">*</span></label>
+                      <input type="number" class="form-control" placeholder="Objectif activité" formControlName="objectifParticipation"
+                             readonly>
+                     
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Date Début <span class="text-danger">*</span></label>
+                      <input type="date" class="form-control" placeholder="Date debut" formControlName="dateDebut"
+                             readonly>
+                      
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Date Fin <span class="text-danger">*</span></label>
+                      <input type="date" class="form-control" placeholder="Date fin" formControlName="dateFin"
+                             readonly>
+                      
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Entite <span class="text-danger">*</span></label>
+                      <select class="form-select form-control readonly-select" formControlName="entite" readonly>
+                        <option value="" [ngValue]="null" disabled>-- Sélectionnez une entite --</option>
+                        <option *ngFor="let entite of entite"  [value]="entite.id">{{entite.nom}}</option>
+                      </select>
+                      
+                    </div>
+                    <div class="col-xl-6 col-lg-4 col-md-12 col-sm-12 mb-2">
+                      <label>Salle<span class="text-danger">*</span></label>
+                      <select class="form-select form-control readonly-select" formControlName="salleId" readonly>
+                        <option value="" [ngValue]="null" disabled>-- Sélectionnez une salle --</option>
+                        <option *ngFor="let salles of salleId"  [value]="salles.id">{{salles.nom}}</option>
+                      </select>
+                      
+                    </div>
+                     <div class="col-xl-6 col-lg-4 col-md-12 col-sm-12 mb-2">
+                      <label>Type d'activite<span class="text-danger">*</span></label>
+                      <select class="form-select form-control readonly-select" formControlName="typeActivite" readonly>
+                        <option value="" [ngValue]="null" disabled>-- Sélectionnez un type --</option>
+                        <option *ngFor="let typeActivites of typeActivites"  [value]="typeActivites.id">{{typeActivites.type}}</option>
+                      </select>
+                      
+                    </div>
+                
+                    <div class="col-xl-12 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Etape <span class="text-danger">*</span></label>
+                      <select  class="form-control h-100 readonly-select" multiple="" (ngModelChange)="onEtapesChange($event)" formControlName="etape">
+                        <option value="" [ngValue]="null" disabled>&#45;&#45; Sélectionnez un ou plusieurs Etape &#45;&#45;</option>
+                        <option *ngFor="let etapes of etape" [ngValue]="etapes.id">{{etapes.nom}}</option>
+                      </select>
+                     
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <!-- <button type="submit" class="btn btn-warning" [disabled]="!editForm.valid || loadingIndicator">
+                      <span *ngIf="loadingIndicator" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                      {{ loadingIndicator ? 'Chargement...' : 'Enregistre' }}
+                    </button> -->
 
                     <button type="button" class="btn btn-dark text-white" (click)="modal.close('Close click')">Fermer</button>
                   </div>

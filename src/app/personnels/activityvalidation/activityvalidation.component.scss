@@ -14,3 +14,36 @@
     color: #fff;
     border-radius: 50%;
 }
+.modal-lg {    
+        width: 600px !important; 
+        background-color: #ff4000;   
+}
+.modal-content {
+   
+    // position: relative;
+    // display: flex;
+    // flex-direction: column;
+    // width: 100%;
+    
+}
+.modal-dialog {
+    max-width: 120%; /* élargit la fenêtre */
+    background-color: aqua;
+    // margin: 1.75rem auto;
+}
+.modal-body {
+background-color: #ffffff;
+}
+::ng-deep .modal-dialog {
+  max-width: 80% !important; /* élargit le modal à 90% de la largeur de l'écran */
+}
+
+::ng-deep .modal-body {
+  overflow-x: auto; /* permet le scroll horizontal si la table déborde */
+  padding: 1.5rem;
+}
+
+::ng-deep table {
+  width: 100%;
+  table-layout: auto; /* les colonnes s'adaptent à leur contenu */
+}

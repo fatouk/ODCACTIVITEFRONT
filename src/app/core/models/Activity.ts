@@ -2,6 +2,7 @@ import {Etape} from "@core/models/Etape";
 import {Entite} from "@core/models/Entite";
 import {Salle} from "@core/models/Salle";
 import { ActivityValidation } from "./ActivityValidation";
+import { Utilisateur } from "./Utilisateur";
 
 export class Activity {
   id?: number;
@@ -17,6 +18,7 @@ export class Activity {
   entite?: Entite;
   typeActivite?: null;
   salleId?: Salle;
+  createdBy?: Utilisateur;
   activitevalidation?: ActivityValidation[];
 
   constructor(data?: Partial<Activity>) {

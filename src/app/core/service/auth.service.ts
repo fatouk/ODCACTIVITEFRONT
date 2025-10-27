@@ -31,7 +31,7 @@ export class AuthService {
 
   get currentUserValue(): Utilisateur & { roles: string[] } {
     const user = localStorage.getItem('currentUser');
-    return user ? JSON.parse(user) : null;
+    return user ? JSON.parse(user) : {} as Utilisateur & { roles: string[] };
   }
 
 
