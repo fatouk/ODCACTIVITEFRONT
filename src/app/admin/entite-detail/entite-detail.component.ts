@@ -18,6 +18,7 @@ import {EncryptionService} from "@core/service/encryption.service";
 import Swal from "sweetalert2";
 import {selectEntiteInterface} from "../entite/entite.component";
 import {TypeActivite} from "@core/models/TypeActivite";
+import { co } from '@fullcalendar/core/internal-common';
 
 @Component({
   selector: 'app-entite-detail',
@@ -67,7 +68,6 @@ export class EntiteDetailComponent {
   ngOnInit() {
 
     this.getAllTypeActivite();
-
    /* const encryptedEntiteId = this.route.snapshot.paramMap.get('id');
     if (encryptedEntiteId) {
       const decryptedEntiteId = this.encryptionService.decrypt(encryptedEntiteId);
@@ -85,11 +85,26 @@ export class EntiteDetailComponent {
     } else {
       this.getAllUtilisateur();
     }*/
-    console.log('ngOnInit déclenché dans EntiteDetailComponent');
+    
+      this.getEntiteById();
 
+    this.register = this.fb.group({
+      id: [''],
+      nom: ['', [Validators.required]],
+      description: ['', [Validators.required]],
+      logo: [''],
+      responsable: [null, [Validators.required]],
+      typeActivite: [null, [Validators.required]], // Ajoutez ce FormControl pour correspondre à formControlName
+      selectedTypeActivites: [null], // Vous utilisez déjà selectedTypeActivites pour stocker les IDs
+
+    });
+  }
+
+  back(): void {
+    this.router.navigate(['/entite']);
+  }
+getEntiteById(){
     const state = history.state;
-    console.log('ID reçu via navigation state:', state);
-
     const id = state?.entiteId;
 
     if (id) {
@@ -107,23 +122,7 @@ export class EntiteDetailComponent {
       console.error("Aucun ID d'entité trouvé dans l'état de navigation.");
       this.back(); // redirection ou message
     }
-
-    this.register = this.fb.group({
-      id: [''],
-      nom: ['', [Validators.required]],
-      description: ['', [Validators.required]],
-      logo: [''],
-      responsable: [null, [Validators.required]],
-      typeActivite: [null, [Validators.required]], // Ajoutez ce FormControl pour correspondre à formControlName
-      selectedTypeActivites: [null], // Vous utilisez déjà selectedTypeActivites pour stocker les IDs
-
-    });
-  }
-
-  back(): void {
-    this.router.navigate(['/entite']);
-  }
-
+}
   onFileChange(event: any) {
     if (event.target.files.length > 0) {
       this.selectedFile = event.target.files[0];
@@ -160,84 +159,79 @@ export class EntiteDetailComponent {
       nom: row.nom,
       description: row.description,
       logo: '', // à vérifier
-      responsable: row.responsable?.id,
+      responsable: row.responsable,
       allTypeActivite: row.typeActivite || [],
-      typeActivite: row.typeActivite || [],
+      typeActivite: row.typeActivitesIds || [],
     });
     this.selectedRowData = row;
   }
 
-  onEditSave(form: UntypedFormGroup) {
-    if (form?.value?.id) {
-      this.loadingIndicator = true;
+ onEditSave(form: UntypedFormGroup) {
+  if (!form.value?.id) {
+    console.error("❌ Pas d'ID dans le formulaire");
+    return;
+  }
 
-      const formData = new FormData();
+  this.loadingIndicator = true;
 
-      // Construction de l'objet entité sans les propriétés inutiles
-      const updatedEntite = {
-        id: form.value.id,
-        nom: form.value.nom,
-        description: form.value.description,
-        logo: form.value.logo,
-        responsable: form.value.responsable?.id,
-        allTypeActivite: form.value.typeActivite || [],
-      };
+  // Construction du DTO
+  const updatedEntite = {
+    id: form.value.id,
+    nom: form.value.nom,
+    description: form.value.description,
+    responsable: form.value.responsable || null,
+    typeActivitesIds: form.value.typeActivite || []
+  };
+  //  Création du FormData
+  const formData = new FormData();
 
-      // Ajouter l'objet entité au FormData
-      formData.append('entiteOdc', new Blob([JSON.stringify(updatedEntite)], { type: 'application/json' }));
+  // 3️⃣ Ajout du JSON au FormData sous forme de BLOB (très important)
+  try {
+    const entiteBlob = new Blob([JSON.stringify(updatedEntite)], { type: 'application/json' });
+    formData.append('entite', entiteBlob);
+  } catch (err) {
+    console.error("❌ Erreur JSON.stringify :", err);
+  }
 
-      // Ajouter le fichier logo si présent
-      if (this.selectedFile) {
-        formData.append('logo', this.selectedFile, this.selectedFile.name);
-      }
+  // 4️⃣ Ajout du fichier logo si sélectionné
+  if (this.selectedFile) {
+    formData.append('logo', this.selectedFile);
+  } else {
+    console.log("⚠️ Aucun logo sélectionné");
+  }
 
-      // Ajouter les types d'activités sélectionnés
-      const selectedActivityIds: number[] = form.get('typeActivite')?.value || [];
-      selectedActivityIds.forEach(typeId => {
-        formData.append('typeActiviteIds', typeId.toString());
-      });
-
-      // Ajouter l'utilisateur responsable
-      const selectedUserId: number = form.get('responsable')?.value;
-      if (!selectedUserId) {
-        this.loadingIndicator = false;
-        Swal.fire({
-          icon: 'info',
-          title: '<span class="text-orange-500">Info</span>',
-          text: 'Veuillez sélectionner un responsable.',
-          confirmButtonText: 'Ok',
-          customClass: {
-            confirmButton: 'bg-orange-500 text-white hover:bg-orange-600',
-          },
-        });
-        return;
-      }
-      formData.append('utilisateurId', selectedUserId.toString());
-
-      // Envoi de la requête de mise à jour
-      this.glogalService.update("entite", form.value.id, formData).subscribe({
-        next: () => {
+    // Appel HTTP (PUT)
+   this.glogalService.updateEntity("entite",form.value.id, formData).subscribe({
+     next: () => {
           this.modalService.dismissAll();
           this.editRecordSuccess();
+          this.getEntiteById();
           this.loadingIndicator = false;
+          
         },
-        error: (err) => {
-          this.loadingIndicator = false;
-          console.error('Erreur lors de la mise à jour :', err);
-
-          let message = err.error?.message || err.message || 'Une erreur est survenue.';
-          Swal.fire({
-            icon: 'error',
-            title: '<span class="text-red-500">Erreur</span>',
-            text: message,
-            confirmButtonText: 'Ok',
-            customClass: {
-              confirmButton: 'bg-red-500 text-white hover:bg-red-600',
-            },
-          });
-        }
-      });
+    error: (err) => {
+      console.error("❌ Erreur API :", err);
+      this.loadingIndicator = false;
     }
+  });
+}
+
+  /** ✅ Message de succès création */
+  creationSuccess() {
+    Swal.fire({
+      icon: 'success',
+      title: 'Succès',
+      text: 'Entité créée avec succès !',
+    });
+  }
+
+  /** ✅ Message de succès édition */
+  editRecordSuccessN() {
+    Swal.fire({
+      icon: 'success',
+      title: 'Succès',
+      text: 'Entité mise à jour avec succès !',
+    });
   }
 
   deleteSingleRow(row: any) {

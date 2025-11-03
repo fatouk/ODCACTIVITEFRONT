@@ -101,8 +101,10 @@ export class EntiteComponent {
       nom: ['', [Validators.required]],
       description: ['', [Validators.required]],
       logo: [''],
-      responsable: [null, [Validators.required]],
-      typeActivite: [null, [Validators.required]], // Ajoutez ce FormControl pour correspondre à formControlName
+      // responsable: [null, [Validators.required]],
+      responsable: [null], // Permet de ne pas forcer la sélection d'un responsable
+      typeActivite: [null],
+      // typeActivite: [null, [Validators.required]], // Ajoutez ce FormControl pour correspondre à formControlName
       selectedTypeActivites: [null], // Vous utilisez déjà selectedTypeActivites pour stocker les IDs
 
     });
@@ -145,7 +147,6 @@ export class EntiteComponent {
 
   onAddRowSave(form: UntypedFormGroup) {
     this.loadingIndicator = true;
-
     const formData = new FormData();
     // Ajouter les données de l'entité depuis le formulaire
     formData.append('entiteOdc', new Blob([JSON.stringify(form.value)], { type: 'application/json' }));
@@ -226,6 +227,47 @@ export class EntiteComponent {
     });
   }
 
+  onCreateSave(form: UntypedFormGroup) {
+  if (!form.valid) return;
+
+  this.loadingIndicator = true;
+  const formData = new FormData();
+
+  const newEntite = {
+    nom: form.value.nom,
+    description: form.value.description,
+    responsableId: form.value.responsable?.id || null,
+    typeActiviteIds: form.value.typeActivite || [],
+  };
+
+  // ✅ correspond à @RequestPart("entite")
+  formData.append(
+    'entite',
+    new Blob([JSON.stringify(newEntite)], { type: 'application/json' })
+  );
+
+  // ✅ correspond à @RequestPart("fichier")
+  if (this.selectedFile) {
+    formData.append('fichier', this.selectedFile, this.selectedFile.name);
+  }
+
+  this.glogalService.post('entite',formData).subscribe({
+    next: () => {
+      this.loadingIndicator = false;
+      this.modalService.dismissAll();
+     this.addRecordSuccess();
+    },
+    error: (err) => {
+      this.loadingIndicator = false;
+      console.error('Erreur création :', err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erreur',
+        text: err?.error?.message || 'Erreur lors de la création de l’entité.',
+      });
+    },
+  });
+}
 
   // add new record
   addRow(content: any) {

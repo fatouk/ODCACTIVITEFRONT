@@ -25,6 +25,7 @@ import { timer } from 'rxjs';
 import { A } from '@angular/cdk/activedescendant-key-manager.d-Bjic5obv';
 import { ActivityValidation } from '@core/models/ActivityValidation';
 import { Utilisateur } from '@core/models/Utilisateur';
+import { co } from '@fullcalendar/core/internal-common';
 
 
 @Component({
@@ -148,6 +149,7 @@ export class ActivityComponent {
   }
 
   deleteSelected() {
+    console
     Swal.fire({
       title: 'Voulez vous vraiment supprimer?',
       showCancelButton: true,
@@ -156,7 +158,7 @@ export class ActivityComponent {
       confirmButtonText: 'Oui',
     }).then((result) => {
       if (result.value) {
-        this.selected.forEach((row) => {
+          this.selected.forEach((row) => {
           this.deleteRecord(row);
         });
         this.deleteRecordSuccess(this.selected.length);
@@ -739,7 +741,8 @@ onSuperviseurSelected(event: any) {
     // Activer le loading pendant la suppression
     this.loadingIndicator = true;
 
-    this.glogalService.delete("activite", row.id!).subscribe({
+    // this.glogalService.delete("activite", row.id!).subscribe({
+      this.glogalService.delete("activite", row!).subscribe({
       next: (response: any) => {
         console.log('Réponse de suppression:', response);
 
@@ -804,10 +807,50 @@ onSuperviseurSelected(event: any) {
   deleteRecordSuccess(count: number) {
     this.toastr.error(count + 'Suppresion faite avec succès.', '');
   }
-isSelected(row: any): boolean {  
-  return this.selected.some((r) => r.toFixed === row.id);
+
+//News fonctions pour la gestion du select
+// isSelected(row: any): boolean {
+//   this.isRowSelected = this.selected.length > 0;
+//    return this.selected.some(r => r === row.id);
+//   //  this.selected.splice(0, this.selected.length);
+//   //   this.selected.push(...this.selected);
+
+//   //   if (this.selected.length === 0) {
+//   //     this.isRowSelected = false;
+//   //   } else {
+//   //     this.isRowSelected = true;
+//   //   }
+//   //   return this.selected.includes(row.id);
+// }
+// toggleSelection(row: any, event: any) {
+//   if (event.target.checked) {
+//     this.isRowSelected = true;
+//     this.selected.push(row);
+//   } else {
+//     this.selected = this.selected.filter(r => r !== row.id);
+//   }
+//   this.isRowSelected = this.selected.length > 0;
+// }
+toggleSelection(row: any, event: any) {
+  const checked = (event.target as HTMLInputElement).checked;
+
+  if (checked) {
+    console.log("Ajout de l'ID sélectionné :", row.id);
+    if (!this.selected.includes(row.id)) {
+      this.selected.push(row.id);
+      console.log("Liste des IDs sélectionnés :", this.selected);
+    }
+  } else {
+    this.selected = this.selected.filter(id => id !== row.id);
+    console.log("Liste des IDs après suppression :", this.selected);
+  }
+
+  this.isRowSelected = this.selected.length > 0;
 }
 
+isSelected(row: any): boolean {
+    return this.selected.includes(row.id);
+}
 onRowCheckboxChange(row: any, event: any) {
   if (event.target.checked) {
     this.isRowSelected = true;

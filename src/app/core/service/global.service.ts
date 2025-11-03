@@ -1,3 +1,4 @@
+import { O } from '@angular/cdk/overlay-module.d-B3qEQtts';
 import {HttpClient, HttpErrorResponse, HttpResponse} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ActivityValidation } from '@core/models/ActivityValidation';
@@ -71,6 +72,9 @@ export class GlobalService {
     return this.http.patch(`${this.baseUrl}/${name}/${id}`, object).pipe(
       catchError(this.handleError.bind(this))
     );
+  }
+   updateEntity(name: string, id: number, object: Object): Observable<Object> {
+    return this.http.put(`${this.baseUrl}/${name}/${id}`, object);
   }
 
   /**

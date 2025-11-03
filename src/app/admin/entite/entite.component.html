@@ -71,7 +71,7 @@
         </button>
       </div>
       <div class="modal-body">
-        <form class="register-form" [formGroup]="register" (ngSubmit)="onAddRowSave(register)">
+        <form class="register-form" [formGroup]="register" (ngSubmit)="onCreateSave(register)">
           <div class="row">
             <div class="col-xl-12 col-lg-6 col-md-12 col-sm-12 mb-2">
               <label>Nom <span class="text-danger">*</span></label>
@@ -102,7 +102,7 @@
           <div class="row">
             <div class="col-xl-12 col-lg-6 col-md-12 col-sm-12 mb-2">
               <label>Responsable <span class="text-danger">*</span></label>
-              <select class="form-select form-control" formControlName="responsable" required>
+              <select class="form-select form-control" formControlName="responsable" >
                 <option value="" [ngValue]="null" disabled>-- Sélectionnez un utilisateur --</option>
                 <option *ngFor="let responsables of users" [ngValue]="responsables.id">{{responsables.nom}} {{responsables.prenom}}</option>
               </select>
