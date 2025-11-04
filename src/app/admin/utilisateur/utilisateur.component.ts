@@ -81,8 +81,7 @@ export class UtilisateurComponent {
       id: [''],
       nom: ['', [Validators.required, Validators.pattern('[a-zA-Z]+')]],
       prenom: ['', [Validators.required, Validators.pattern('[a-zA-Z]+')]],
-      email: [
-        '',
+      email: [ '',
         [Validators.required, Validators.email, Validators.minLength(5)],
       ],
       genre: ['', [Validators.required]],
@@ -138,6 +137,9 @@ export class UtilisateurComponent {
 
   onAddRowSave(form: UntypedFormGroup) {
     this.loadingIndicator = true;
+    console.log("Form value", form.value);
+    // const payload = { ...form.value, role: Number(form.value.role),entite:{ id: form.value.entite } // <- transforme l'ID en objet}; // conversion string → number
+  console.log("Payload envoyé", form.value);
     this.glogalService.post('utilisateur', form.value).subscribe({
       next: (response) => {
         // Ajouter la nouvelle role reçue à la liste locale
@@ -198,7 +200,8 @@ export class UtilisateurComponent {
       ariaLabelledBy: 'modal-basic-title',
       size: 'lg',
     });
-    this.editForm.setValue({
+    // console.log("row========",row);
+    this.editForm.patchValue({
       id: row.id,
       nom: row.nom,
       prenom: row.prenom,
@@ -208,7 +211,6 @@ export class UtilisateurComponent {
       role: row.role?.id,
       entite: row.entite?.id,
     });
-    console.log("row",row);
     this.selectedRowData = row;
   }
 
@@ -216,7 +218,7 @@ export class UtilisateurComponent {
     if (form?.value?.id) {
       // Préparer l'objet mis à jour (ici l'exemple suppose que `form.value` contient les nouvelles données)
       const updatedUtilisateur = form.value;
-
+console.log("Updated Utilisateur========", updatedUtilisateur);
       this.glogalService.update("utilisateur", updatedUtilisateur.id, updatedUtilisateur).subscribe({
         next: () => {
           this.modalService.dismissAll(); // Fermer le modal

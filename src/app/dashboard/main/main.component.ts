@@ -105,6 +105,8 @@ export class MainComponent implements OnInit {
   private chart2() {
     const hommeData = this.nombreGenre.find(g => g.genre === "Homme")?.count || 0;
     const femmeData = this.nombreGenre.find(g => g.genre === "Femme")?.count || 0;
+    //  const hommeData = 100;
+    // const femmeData = 50;
     this.barChartOptions = {
 
       series: [

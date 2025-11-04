@@ -1,4 +1,4 @@
-import {AsyncPipe, DOCUMENT} from '@angular/common';
+import { AsyncPipe, DOCUMENT, NgIf } from '@angular/common';
 import {
   Component,
   Inject,
@@ -30,7 +30,8 @@ import {Observable} from "rxjs";
     NgbDropdownMenu,
     RouterLink,
     TranslateModule,
-  ],
+    NgIf
+],
     providers: [RightSidebarService]
 })
 export class HeaderComponent implements OnInit, AfterViewInit {

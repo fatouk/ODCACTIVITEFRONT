@@ -45,7 +45,9 @@
                         <div class="user-name">{{ row.nom }}</div>
                         <div class="name-center">{{ row.prenom }}</div>
                       </div>
-                      <img src="assets/images/users/user-4.png" class="user-img" alt="">
+                      <img *ngIf="row.genre==='Homme'" src="assets/images/users/userhomme.png" class="user-img" alt="">
+                      <img *ngIf="row.genre==='Femme'" src="assets/images/users/userfemme.png" class="user-img" alt="">
+
                       <p>
                         {{ row.email }}
                         <br />{{ row.role?.nom }}

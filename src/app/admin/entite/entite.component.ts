@@ -17,6 +17,7 @@ import {NgForOf, NgIf} from "@angular/common";
 import Swal from "sweetalert2";
 import {TypeActivite} from "@core/models/TypeActivite";
 import {EncryptionService} from "@core/service/encryption.service";
+import { co } from '@fullcalendar/core/internal-common';
 
 @Component({
   selector: 'app-entite',
@@ -256,6 +257,7 @@ export class EntiteComponent {
       this.loadingIndicator = false;
       this.modalService.dismissAll();
      this.addRecordSuccess();
+     this.getAllEntite();
     },
     error: (err) => {
       this.loadingIndicator = false;
@@ -305,8 +307,10 @@ export class EntiteComponent {
 
         // Compter les activités pour chaque entité
         activites.forEach(activite => {
-          if (activite.entiteId && this.activiteCount.hasOwnProperty(activite.entiteId)) {
-            this.activiteCount[activite.entiteId]++;
+          // console.log("Activiteby entite==========", activite);
+          if (activite.entite.id && this.activiteCount.hasOwnProperty(activite.entite.id)) {
+            this.activiteCount[activite.entite.id]++;
+            
           }
         });
       },

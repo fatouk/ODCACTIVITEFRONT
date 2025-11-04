@@ -19,6 +19,7 @@ import Swal from "sweetalert2";
 import {selectEntiteInterface} from "../entite/entite.component";
 import {TypeActivite} from "@core/models/TypeActivite";
 import { co } from '@fullcalendar/core/internal-common';
+import { C } from '@angular/cdk/scrolling-module.d-ud2XrbF8';
 
 @Component({
   selector: 'app-entite-detail',
@@ -34,8 +35,9 @@ import { co } from '@fullcalendar/core/internal-common';
 export class EntiteDetailComponent {
 
   entite: Entite | null = null;
-  selectedUtilisateurId: number | null = null;
+  selectedUtilisateurId: Number | null = null;
   users: Utilisateur[] = [];
+  selectedUtilisateur: Utilisateur | null = null;
   entites:  Entite[] = [];
   allTypeActivite: TypeActivite[] = []; // Pour la liste déroulante des types d'activités
   editForm: UntypedFormGroup;
@@ -67,27 +69,8 @@ export class EntiteDetailComponent {
 
   ngOnInit() {
 
-    this.getAllTypeActivite();
-   /* const encryptedEntiteId = this.route.snapshot.paramMap.get('id');
-    if (encryptedEntiteId) {
-      const decryptedEntiteId = this.encryptionService.decrypt(encryptedEntiteId);
-      if (decryptedEntiteId) {
-        this.glogalService.getById('entite', decryptedEntiteId).subscribe((data: Entite) => {
-          console.log(data.responsable?.nom);
-          this.entite = data;
-          this.selectedUtilisateurId = data.responsable?.id || null;
-          this.getAllUtilisateur();
-        });
-      } else {
-        console.error('Impossible de décrypter l\'ID de l\'entité.');
-        // Gérez le cas où la décryption échoue (redirigez l'utilisateur, affichez un message, etc.)
-      }
-    } else {
-      this.getAllUtilisateur();
-    }*/
-    
-      this.getEntiteById();
-
+    this.getAllTypeActivite();    
+    this.getEntiteById();
     this.register = this.fb.group({
       id: [''],
       nom: ['', [Validators.required]],
@@ -106,12 +89,14 @@ export class EntiteDetailComponent {
 getEntiteById(){
     const state = history.state;
     const id = state?.entiteId;
-
     if (id) {
       this.glogalService.getById('entite', id).subscribe({
         next: (data: Entite) => {
           this.entite = data;
-          this.selectedUtilisateurId = data.responsable?.id || null;
+          const respon= data.responsable;
+          this.selectedUtilisateurId =  data.responsable as unknown as Number;
+          // console.log("Responsable ID===", this.selectedUtilisateurId);
+          this.getResponsableByEntite(respon!);
           this.getAllUtilisateur();
         },
         error: (err) => {
@@ -123,6 +108,36 @@ getEntiteById(){
       this.back(); // redirection ou message
     }
 }
+
+getResponsableByEntite( respon:any): void {
+  this.glogalService.get('utilisateur').subscribe({
+    next: (users: any[]) => {
+      //this.utilisateurs = users;
+      // console.log("👥 Liste complète des utilisateurs :", users);
+
+      // ✅ Exemple 1 : forEach
+      // users.forEach(user => {
+      //   console.log("➡️ Utilisateur :", user.nom);
+      // });
+
+      // ✅ Exemple 2 : trouver le responsable
+      if (respon) {
+        this.selectedUtilisateur = users.find(u => u.id === respon);
+
+        if (this.selectedUtilisateur) {
+          console.log("✅ Responsable trouvé :", this.selectedUtilisateur);
+        } else {
+          console.warn("⚠️ Aucun utilisateur ne correspond à cet ID :", this.selectedUtilisateurId);
+        }
+      }
+    },
+    error: (err) => {
+      console.error("❌ Erreur lors du chargement des utilisateurs :", err);
+    }
+  });
+}
+
+
   onFileChange(event: any) {
     if (event.target.files.length > 0) {
       this.selectedFile = event.target.files[0];

@@ -55,6 +55,7 @@ export class GlobalService {
    * @return {Observable<Object>} Un observable qui émet la réponse du serveur.
    */
   post(name: string, object: Object): Observable<Object> {
+    console.log('Appel POST à l\'endpoint :', Object);
     return this.http.post(`${this.baseUrl}/${name}`, object).pipe(
       catchError(this.handleError.bind(this))
     );

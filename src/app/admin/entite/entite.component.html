@@ -101,7 +101,7 @@
 
           <div class="row">
             <div class="col-xl-12 col-lg-6 col-md-12 col-sm-12 mb-2">
-              <label>Responsable <span class="text-danger">*</span></label>
+              <label>Responsable </label>
               <select class="form-select form-control" formControlName="responsable" >
                 <option value="" [ngValue]="null" disabled>-- Sélectionnez un utilisateur --</option>
                 <option *ngFor="let responsables of users" [ngValue]="responsables.id">{{responsables.nom}} {{responsables.prenom}}</option>
@@ -112,7 +112,7 @@
             </div>
 
             <div class="col-xl-12 col-lg-6 col-md-12 col-sm-12 mb-2">
-              <label>Type Activite <span class="text-danger">*</span></label>
+              <label>Type Activite</label>
               <select  class="form-control h-100" multiple="" formControlName="typeActivite">
                 <option value="" [ngValue]="null" disabled>&#45;&#45; Sélectionnez un ou plusieurs TypeActivite &#45;&#45;</option>
                 <option *ngFor="let typeActivite of allTypeActivite" [ngValue]="typeActivite.id">{{typeActivite.type}}</option>

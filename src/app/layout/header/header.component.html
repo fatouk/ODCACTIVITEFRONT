@@ -7,7 +7,7 @@
           <i-feather name="menu"></i-feather>
         </a>
       </li>
-        <li>
+        <!-- <li>
           <form class="form-inline me-auto">
             <div class="search-element d-flex">
               <input class="form-control" type="search" placeholder="{{'HEADER.SEARCH.TEXT' | translate}}"
@@ -17,7 +17,7 @@
                 </button>
             </div>
           </form>
-        </li>
+        </li> -->
     </ul>
   </div>
 
@@ -48,10 +48,15 @@
           </div>
     </li>-->
 
-    <li ngbDropdown><a ngbDropdownToggle data-toggle="dropdown"
-      class="nav-link dropdown-toggle nav-link-lg nav-link-user">
-      <img alt="image" src="assets/images/user.png" class="user-img-radious-style collapse-btn"> <span
-      class="d-sm-none d-lg-inline-block"></span></a>
+    <li ngbDropdown>
+      <a ngbDropdownToggle data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
+      <img alt="image" src="assets/images/user.png" class="user-img-radious-style collapse-btn"> 
+      <span class="d-sm-none d-lg-inline-block"></span></a>
+
+      <a ngbDropdownToggle data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
+      <img *ngIf="" alt="image" src="assets/images/users/userhomme.png" class="user-img-radious-style collapse-btn"> 
+      <span class="d-sm-none d-lg-inline-block"></span></a>
+      
       <div ngbDropdownMenu class="dropdown-menu dropdown-menu-right header-dropdown pullDown">
         <div class="dropdown-title">Bonjour {{ nomComplet }}</div>
         <a routerLink="/profile" class="dropdown-item has-icon"> <i class="far
