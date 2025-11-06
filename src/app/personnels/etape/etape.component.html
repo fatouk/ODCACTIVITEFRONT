@@ -59,8 +59,8 @@
                            columnMode="force" [headerHeight]="60" [footerHeight]="80" rowHeight="auto" [limit]="10"
                            [scrollbarH]="scrollBarHorizontal" [reorderable]="reorderable" [selected]="selected"
                            [selectionType]="selection" (select)='onSelect($event)'>
-              <ngx-datatable-column [width]="70" [sortable]="false" [draggable]="false" [resizeable]="false"
-                                    [canAutoResize]="false" [headerCheckboxable]="true" [checkboxable]="true">
+              <ngx-datatable-column *ngIf="useRole.includes('PERSONNEL')" [width]="70" [sortable]="false" [draggable]="false" [resizeable]="false"
+                                    [canAutoResize]="false" [headerCheckboxable]="true" [checkboxable]="false">
               </ngx-datatable-column>
               <ngx-datatable-column [width]="200" name="Nom">
                 <ng-template let-row="row" let-value="value" let-i="index" ngx-datatable-cell-template>
@@ -95,16 +95,19 @@
               <ngx-datatable-column name="Actions" [sortable]="false">
                 <ng-template let-value="value" let-row="row" let-rowNom let-rowIndex="rowIndex" ngx-datatable-cell-template>
                   <span>
-                    <button class="btn btn-tbl-edit h-auto" (click)='editRow(row, rowIndex, editRecord)'>
+                    <button *ngIf="useRole.includes('PERSONNEL') && currentUserId===row.created_by.id" class="btn btn-tbl-edit h-auto" (click)='editRow(row, rowIndex, editRecord)'>
                       <i class="fas fa-pen"></i>
                     </button>
+                        <button  class="btn btn-tbl-edit h-auto" (click)='editRow(row, rowIndex, detailRecord)'>
+                      <i class="fas fa-eye"></i>
+                    </button>
                     <button
-                      *ngIf="useRole.includes('PERSONNEL')"
+                      *ngIf="useRole.includes('PERSONNEL') && currentUserId===row.created_by.id"
                       class="btn btn-tbl-edit h-auto" (click)='fileUpload(infoModal, row.id, row.nom)'
                             title="Importer des participants">
                       <i class="fas fa-upload"></i>
                     </button>
-                    <button class="btn btn-tbl-delete h-auto" (click)='deleteSingleRow(row)'>
+                    <button *ngIf="useRole.includes('PERSONNEL') && currentUserId===row.created_by.id" class="btn btn-tbl-delete h-auto" (click)='deleteSingleRow(row)'>
                       <i class="far fa-trash-alt"></i>
                     </button>
                   </span>
@@ -245,6 +248,67 @@
                       <span *ngIf="loadingIndicator" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
                       {{ loadingIndicator ? 'Chargement...' : 'Enregistre' }}
                     </button>
+                    <button type="button" class="btn btn-dark text-white" (click)="modal.close()">Fermer</button>
+                  </div>
+                </form>
+              </div>
+            </ng-template>
+
+             <!-- Detail Record Modal Window -->
+            <ng-template #detailRecord let-modal>
+              <div class="modal-header editRowModal">
+                <h4  id="modal-basic-title1">
+                  Détails de l'etape:                     
+                </h4>
+                <h4 class="modal-title" id="modal-basic-title">
+                  <!-- <div class="table-modal-header"> -->
+                    <!-- <div class="modal-about"> -->
+                     <!-- <div class="fw-bold p-t-10 font-17"> -->
+                       {{selectedRowData!.nom}}
+                      <!-- </div> -->
+                    <!-- </div> -->
+                  <!-- </div> -->
+                </h4>
+                <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+                  <span aria-hidden="true"><i class="material-icons">close</i></span>
+                </button>
+                
+              </div>
+              <div class="modal-body">
+                <form [formGroup]="editForm" >
+                  <div class="input-field col s12 d-none">
+                    <input formControlName="id" class="form-control" type="hidden">
+                  </div>
+                  <div class="row">
+                    <div class="col-xl-12 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Nom </label>
+                      <input readonly type="text" class="form-control" placeholder="Nom etape" formControlName="nom"
+>                     
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Date Début</label>
+                      <input type="date" class="form-control" placeholder="Date debut" formControlName="dateDebut"
+                             readonly>
+                     
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+                      <label>Date Fin</label>
+                      <input type="date" class="form-control" placeholder="Date fin" formControlName="dateFin"
+                             readonly>
+                     
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="d-block">Critere</label>
+                    <div *ngFor="let criteres of critere" class="form-check form-check-inline">
+                      <input class="readonly-select" [checked]="isCritereSelected(criteres.id)"  type="checkbox" [value]="criteres.id" (change)="onCheckboxChange($event)">
+                      <label class="form-check-label">{{ criteres.libelle }}</label>
+                    </div>
+                  </div>
+                  <div class="modal-footer">                              
                     <button type="button" class="btn btn-dark text-white" (click)="modal.close()">Fermer</button>
                   </div>
                 </form>

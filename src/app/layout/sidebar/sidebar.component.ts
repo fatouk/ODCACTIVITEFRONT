@@ -4,7 +4,7 @@ import {
   RouterLink,
   RouterLinkActive,
 } from '@angular/router';
-import { DOCUMENT, NgClass } from '@angular/common';
+import { DOCUMENT, NgClass, NgIf } from '@angular/common';
 import {
   Component,
   Inject,
@@ -20,6 +20,7 @@ import { FeatherModule } from 'angular-feather';
 import { NgScrollbar } from 'ngx-scrollbar';
 import { AuthService } from '@core';
 import { SidebarService } from './sidebar.service';
+import { Utilisateur } from '@core/models/Utilisateur';
 @Component({
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',
@@ -30,7 +31,7 @@ import { SidebarService } from './sidebar.service';
     RouterLinkActive,
     NgClass,
     FeatherModule,
-    TranslateModule,
+    TranslateModule,NgIf
   ],
 })
 export class SidebarComponent implements OnInit, OnDestroy {
@@ -42,6 +43,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   headerHeight = 60;
   routerObj;
   useRole: string[];
+
   constructor(
     @Inject(DOCUMENT) private document: Document,
     private renderer: Renderer2,
@@ -58,7 +60,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
       }
     });
     this.useRole = this.authService.getCurrentUserFromStorage().roles;
-    console.log(this.useRole);
+    // console.log("ROLE==========",this.useRole);
   }
   @HostListener('window:resize', ['$event'])
   windowResizecall() {
@@ -88,6 +90,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
     }
   }
   ngOnInit() {
+   
     const userRoles: string[] = this.authService.getCurrentUserFromStorage().roles; // tableau de rôles
     if (this.authService.currentUserValue) {
       this.sidebarService.getRouteInfo().subscribe((routes: RouteInfo[]) => {
@@ -108,11 +111,13 @@ export class SidebarComponent implements OnInit, OnDestroy {
       if (token) {
         const decoded = this.authService.getDecodedToken(token);
         this.nomComplet = `${decoded.prenom} ${decoded.nom}`;
+        this.genre=`${decoded.genre}`;
       }
     }
   }
 
   nomComplet = 'Utilisateur';
+ genre = 'Homme';
   ngOnDestroy() {
     this.routerObj.unsubscribe();
   }

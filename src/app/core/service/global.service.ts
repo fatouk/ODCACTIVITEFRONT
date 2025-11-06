@@ -60,6 +60,21 @@ export class GlobalService {
       catchError(this.handleError.bind(this))
     );
   }
+/**
+   * Met à jour un objet dans la collection spécifiée.
+   *
+   * @param {string} name - Le nom de l'endpoint.
+   * @param {number} iduser - L'ID de DU USER createur.
+   * @param {Object} object - L'objet mis à jour.
+   * @return {Observable<Object>} Un observable qui émet l'objet mis à jour.
+   */
+
+   postId(name: string,iduser:number, object: Object): Observable<Object> {
+    console.log('Appel POST à l\'endpoint :', Object);
+    return this.http.post(`${this.baseUrl}/${name}/${iduser}`, object).pipe(
+      catchError(this.handleError.bind(this))
+    );
+  }
 
   /**
    * Met à jour un objet dans la collection spécifiée.
@@ -71,6 +86,21 @@ export class GlobalService {
    */
   update(name: string,id: number, object: Object): Observable<Object> {
     return this.http.patch(`${this.baseUrl}/${name}/${id}`, object).pipe(
+      catchError(this.handleError.bind(this))
+    );
+  }
+
+
+  /**
+   * Met à jour un objet dans la collection spécifiée.
+   *
+   * @param {string} name - Le nom de l'endpoint.
+   * @param {number} id - L'ID de l'objet à mettre à jour.
+   * @param {Object} object - L'objet mis à jour.
+   * @return {Observable<Object>} Un observable qui émet l'objet mis à jour.
+   */
+  updateId(name: string,id: number,iduser: number, object: Object): Observable<Object> {
+    return this.http.patch(`${this.baseUrl}/${name}/${id}/${iduser}`, object).pipe(
       catchError(this.handleError.bind(this))
     );
   }

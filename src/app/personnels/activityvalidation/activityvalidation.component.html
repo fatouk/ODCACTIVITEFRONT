@@ -134,8 +134,7 @@
                       *ngIf="useRole.includes('PERSONNEL')"
                       class="btn btn-tbl-edit h-auto" (click)='editRow2(row,editRecord)'>
                       <i class="fas fa-eye" ></i>
-                    </button>
-                    
+                    </button>           
               
                     <!-- <button 
                       *ngIf="useRole.includes('PERSONNEL')"
@@ -170,7 +169,7 @@
               <p><strong>Description :</strong> {{ selectedActivite?.description }}</p>
               <p><strong>Date :</strong> {{ selectedActivite?.dateDebut | date }} → {{ selectedActivite?.dateFin | date }}</p>
               <hr>
-              <h6>Validations associées</h6>
+              <h4 style="color: orange;">Validations associées</h4>
           <div class="table-responsive">   
               <table class="table table-sm table-bordered">
                 <thead>
@@ -186,7 +185,7 @@
                 </thead>
                 <tbody>
                   <tr *ngFor="let val of selectedRowData?.activitevalidation">
-                    <td >{{ val.commentaire }}</td>
+                    <td >{{val.commentaire }}</td>
                     <td>{{ val.statut }}</td>
                     <td>{{ val.envoyeurId ? envoyeurMap[val.envoyeurId] : '—'  }}</td>
                     <td>{{ val.superviseurId ? superviseurMap[val.superviseurId] : '—' }}</td>

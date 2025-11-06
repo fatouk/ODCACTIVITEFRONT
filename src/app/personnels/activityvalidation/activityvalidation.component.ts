@@ -138,10 +138,15 @@ export class ActivityvalidationComponent {
 getMapSuperviseur(): void {
   this.glogalService.get('utilisateur').subscribe({
     next: (data) => {
+      const filteredData = data.filter((s: any) => s.id !== this.currentUserId);
+  console.log('1SuperviseurMap chargée :', filteredData);
       this.superviseurMap = Object.fromEntries(
-        data.map((s: any) => [s.id, s.nom+'-'+s.prenom])
+        filteredData.map((s: any) => [s.id, s.nom + '-' + s.prenom])
       );
-      console.log('SuperviseurMap chargée :', this.superviseurMap);
+      // this.superviseurMap = Object.fromEntries(
+      //   data.map((s: any) => [s.id, s.nom+'-'+s.prenom])
+      // );
+      console.log('3SuperviseurMap chargée :', this.superviseurMap);
     },
     error: (err) => {
       console.error('Erreur lors du chargement des superviseurs', err);
@@ -349,6 +354,7 @@ reloadActivitieValidations() {
 }
   // add new record
   addRow(content: any) {
+    this.getMapSuperviseur();
     this.modalService.open(content, {
       ariaLabelledBy: 'modal-basic-title',
       size: 'lg',
@@ -396,7 +402,7 @@ this.selectedEtapeIds = etapes.map((e: any) => e.id);
   }
   editRow2(row:any,editRecord:any){
     this.selectedActivite=row;
-     this.updateDeleteRights(row);
+    this.updateDeleteRights(row);
     this.modalService.open(editRecord, {
       ariaLabelledBy: 'modal-basic-title',});
       this.selectedRowData = row;
@@ -405,7 +411,7 @@ this.selectedEtapeIds = etapes.map((e: any) => e.id);
     editRowValidation(row:any,validationRecord:any){
       console.log("validation row",row);
       this.selectedActivite=row;
-    this.validationForm = this.fb.group({
+      this.validationForm = this.fb.group({
       statut: ['', Validators.required],      // Acceptee ou Rejetee
       superviseurId: [''],                           // Optionnel
       commentaire: [''],                           // Optionnel
@@ -436,9 +442,9 @@ onValidate() {
     this.glogalService.createValidation(validation,fichierChiffre!).subscribe({
       next: () => {
         this.modalService.dismissAll();
+        this.getActivitesForSuperviseur();
+        this.updateDeleteRights(this.selectedActivite);
         this.editSuccessMessage(3000);
-        this.reloadActivities();
-        this.reloadActivitieValidations();
       },
       error: (err) => console.error('Erreur validation :', err),
     });
@@ -562,10 +568,10 @@ updateDeleteRights(activite: any) {
 
   const lastValidation = validations[validations.length - 1];
   const currentUserId = this.getCurrentUserId();
-  console.log('Last validation:', lastValidation);
-  console.log('Current user ID:', currentUserId);
+  // console.log('Last validation:', lastValidation);
+  // console.log('Current user ID:', currentUserId);
    console.log(this.canDelete = lastValidation.envoyeurId === currentUserId);
-activite.activitevalidation = validations.map((val: any) => {
+    activite.activitevalidation = validations.map((val: any) => {
     return {
       ...val,
       canDelete:
@@ -577,7 +583,9 @@ activite.activitevalidation = validations.map((val: any) => {
   // 2️⃣ l’envoyeur est l’utilisateur courant
   this.canDelete = lastValidation.envoyeurId === currentUserId;
 }
-
+reloadModal() {
+  this.cdr.detectChanges();
+}
 deleteValidation(valid:number): void {
   Swal.fire({
     title: 'Confirmer la suppression de cette validation ?',
@@ -591,7 +599,14 @@ deleteValidation(valid:number): void {
       this.glogalService.delete('activitevalidation', valid).subscribe({
         next: () => {
           this.toastr.success('Validation supprimée avec succès.', '');
-          this.reloadActivitieValidations();
+          
+          //  this.modalService.dismissAll();
+          this.selectedRowData.activitevalidation = this.selectedRowData.activitevalidation.filter(v => v.id !== valid);
+          this.selectedRowData = { ...this.selectedRowData };
+          this.updateDeleteRights(this.selectedRowData);
+          this.cdr.markForCheck();          
+          // this.modalService.dismissAll();
+          
         }
       });
     }

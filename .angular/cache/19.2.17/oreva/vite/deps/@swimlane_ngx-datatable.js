@@ -80,10 +80,10 @@ import {
   ɵɵtextInterpolate2,
   ɵɵviewQuery
 } from "./chunk-GMNKFFGC.js";
-import "./chunk-ISM5WLAM.js";
 import {
   fromEvent
 } from "./chunk-IC62NIWK.js";
+import "./chunk-ISM5WLAM.js";
 import {
   BehaviorSubject,
   Subject,

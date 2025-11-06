@@ -16,6 +16,7 @@ import {TypeActivite} from "@core/models/TypeActivite";
 import {Entite} from "@core/models/Entite";
 import {NgIf} from "@angular/common";
 import {RouterLink} from "@angular/router";
+import { AuthService } from '@core';
 
 @Component({
   selector: 'app-type-activite',
@@ -42,7 +43,9 @@ export class TypeActiviteComponent {
   loadingIndicator = true;
   isRowSelected = false;
   reorderable = true;
+  currentUserId: number | null = this.getCurrentUserId();
   public selected: number[] = [];
+  useRole: string[] =  [];
   columns = [
     { prop: 'type' },
   ];
@@ -53,7 +56,8 @@ export class TypeActiviteComponent {
     private fb: UntypedFormBuilder,
     private modalService: NgbModal,
     private toastr: ToastrService,
-    private glogalService: GlobalService
+    private glogalService: GlobalService,
+    private authService: AuthService
   ) {
     this.editForm = this.fb.group({
       id: new UntypedFormControl(),
@@ -63,6 +67,8 @@ export class TypeActiviteComponent {
       this.scrollBarHorizontal = window.innerWidth < 1200;
     };
     this.selection = SelectionType.checkbox;
+    this.useRole = this.authService.getCurrentUserFromStorage().roles;
+
   }
 
   // select record using check box
@@ -98,7 +104,6 @@ export class TypeActiviteComponent {
 
   ngOnInit() {
     this.getAllTypeActivite();
-
     this.register = this.fb.group({
       id: [''],
       type: ['', [Validators.required]],
@@ -109,7 +114,8 @@ export class TypeActiviteComponent {
     this.loadingIndicator = true;
     this.glogalService.get('typeActivite').subscribe({
       next:(value: TypeActivite[]) =>{
-        this.typeActivites = value;
+        this.typeActivites = value
+        console.log("typeActivites",this.typeActivites)
         this.filteredData = [...value];
         setTimeout(() =>{
           this.loadingIndicator = false;
@@ -117,10 +123,27 @@ export class TypeActiviteComponent {
       }
     })
   }
-
+ getCurrentUserId(): number | null {
+  const raw = localStorage.getItem('bearerid');
+  // console.log('Raw currentUser from localStorage:', raw);
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    // si le stockage est juste un id string, parsed sera une string
+    if (typeof parsed === 'number') return parsed;
+    if (typeof parsed === 'string') return parseInt(parsed, 10);
+    // sinon on cherche parsed.id
+    if (parsed) return Number(parsed);
+    return null;
+  } catch {
+    // raw n'était pas JSON (peut être un id en string)
+    const val = parseInt(raw, 10);
+    return isNaN(val) ? null : val;
+  }
+}
   onAddRowSave(form: UntypedFormGroup) {
     this.loadingIndicator = true;
-    this.glogalService.post('typeActivite', form.value).subscribe({
+    this.glogalService.postId('typeActivite',this.currentUserId!, form.value).subscribe({
       next: (response) => {
         // Ajouter la nouvelle role reçue à la liste locale
         this.typeActivites.push(response);
@@ -243,8 +266,7 @@ export class TypeActiviteComponent {
     if (form?.value?.id) {
       // Préparer l'objet mis à jour (ici l'exemple suppose que `form.value` contient les nouvelles données)
       const updatedTypeActivite = form.value;
-
-      this.glogalService.update("typeActivite", updatedTypeActivite.id, updatedTypeActivite).subscribe({
+      this.glogalService.updateId("typeActivite", updatedTypeActivite.id,this.currentUserId!, updatedTypeActivite).subscribe({
         next: () => {
           this.modalService.dismissAll(); // Fermer le modal
           this.editRecordSuccess();       // Appeler callback si défini
@@ -294,13 +316,13 @@ export class TypeActiviteComponent {
 
 
   addRecordSuccess() {
-    this.toastr.success('Adjonction réalisée avec succès.', '');
+    this.toastr.success('Adjout réalisé avec succès.', '');
   }
   editRecordSuccess() {
     this.toastr.success('Modification opéré', '');
   }
   deleteRecordSuccess(count: number) {
-    this.toastr.error(count + 'Eradication diligente pleinement consommée.', '');
+    this.toastr.error(count + 'l\'operation effectuée avec succès', '');
   }
 
 }

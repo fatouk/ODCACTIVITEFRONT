@@ -21,7 +21,7 @@ import {Observable} from "rxjs";
 @Component({
     selector: 'app-header',
     templateUrl: './header.component.html',
-    styleUrls: ['./header.component.sass'],
+    styleUrls: ['./header.component.scss'],
   imports: [
     FeatherModule,
     FormsModule,
@@ -30,7 +30,7 @@ import {Observable} from "rxjs";
     NgbDropdownMenu,
     RouterLink,
     TranslateModule,
-    NgIf
+   
 ],
     providers: [RightSidebarService]
 })

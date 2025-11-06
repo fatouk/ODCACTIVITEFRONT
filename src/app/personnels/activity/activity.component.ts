@@ -1,10 +1,11 @@
 import {ChangeDetectorRef, Component, NgZone, ViewChild} from '@angular/core';
 import {
+  AbstractControl,
   FormsModule,
   ReactiveFormsModule,
   UntypedFormBuilder,
   UntypedFormControl,
-  UntypedFormGroup, Validators
+  UntypedFormGroup, ValidationErrors, ValidatorFn, Validators
 } from "@angular/forms";
 import {FullCalendarModule} from "@fullcalendar/angular";
 
@@ -68,6 +69,7 @@ export class ActivityComponent {
   selectedFile: File | null = null;
   currentUserId: number | null = this.getCurrentUserId();
   activityValidation: ActivityValidation = new ActivityValidation();
+  superviseurMap: Record<number, string> = {};
   columns = [
     { prop: 'nom' },
     { prop: 'titre' },
@@ -175,7 +177,8 @@ export class ActivityComponent {
     this.getAllTypeActivite();
     this.getAllSalle();  
     this.getAllUtilisateur();
-  // initialize form group
+    // this.getMapSuperviseur();
+  // initialize form creation
    this.register = this.fb.group({
       id: [''],
       nom: ['', [Validators.required]],
@@ -195,6 +198,38 @@ export class ActivityComponent {
       fichier: [null],
       fichierjoint: [''],
     });
+
+  //   this.register.get('dateFin')?.valueChanges.subscribe(dateFin => {
+  //   const dateDebut = this.register.get('dateDebut')?.value;
+  //   if (dateDebut && dateFin && new Date(dateFin) < new Date(dateDebut)) {
+
+  //     // On met une erreur seulement sur dateFin
+  //     this.register.get('dateFin')?.setErrors({ dateInvalide: true });
+
+  //   } else {
+  //     // On enlève l'erreur si tout est correct
+  //     this.register.get('dateFin')?.setErrors(null);
+  //   }
+  // });
+
+ // Fonction de vérification
+  const checkDates = () => {
+    const dateDebut = this.register.get('dateDebut')?.value;
+    const dateFin   = this.register.get('dateFin')?.value;
+
+    if (dateDebut && dateFin && new Date(dateFin) < new Date(dateDebut)) {
+      this.register.get('dateFin')?.setErrors({ dateInvalide: true });
+    } else {
+      this.register.get('dateFin')?.setErrors(null);
+    }
+  };
+
+  // On écoute les deux champs
+  this.register.get('dateDebut')?.valueChanges.subscribe(() => checkDates());
+  this.register.get('dateFin')?.valueChanges.subscribe(() => checkDates());
+
+  
+  // initialize detail form group
      this.detailForm = this.fb.group({
       id: [''],
       nom: [{ value: this.selectedRowData.nom, disabled: true }, [Validators.required]],      titre: ['', [Validators.required]],
@@ -214,6 +249,20 @@ export class ActivityComponent {
       fichierjoint: [''],
     });
   }
+
+getMapSuperviseur(): void {
+  this.glogalService.get('utilisateur').subscribe({
+    next: (data: Utilisateur[]) => {
+      this.utilisateursPersonnels = data.filter(user => user.id !== this.currentUserId);
+      // console.log("Users (sans le connecté)", this.utilisateursPersonnels);
+      this.filteredData = [...this.utilisateursPersonnels];
+      // console.log('3SuperviseurMap chargée :', this.utilisateursPersonnels);
+    },
+    error: (err) => {
+      console.error('Erreur lors du chargement des superviseurs', err);
+    }
+  });
+}
 
   // fetch data
  getAllUtilisateur(){
@@ -277,6 +326,25 @@ export class ActivityComponent {
     this.glogalService.get('etape').subscribe({
       next:(value: Etape[]) =>{
         console.log("Etape :=================", value)
+        this.etape = value.filter(etape => etape.created_by?.id === this.currentUserId);
+      // Si tu utilises un tableau filtré ailleurs
+      this.filteredData = [...this.etape];
+        // this.etape = value;
+        // this.filteredData = [...value];
+        setTimeout(() =>{
+          this.loadingIndicator = false;
+        },500);
+      }
+    })
+  }
+   getAllEtapeALL(){
+    this.loadingIndicator = true;
+    this.glogalService.get('etape').subscribe({
+      next:(value: Etape[]) =>{
+        console.log("Etape :=================", value)
+      //   this.etape = value.filter(etape => etape.created_by?.id === this.currentUserId);
+      // // Si tu utilises un tableau filtré ailleurs
+      // this.filteredData = [...this.etape];
         this.etape = value;
         this.filteredData = [...value];
         setTimeout(() =>{
@@ -358,93 +426,7 @@ export class ActivityComponent {
       this.loadingIndicator = false;}
 }
 
-  async onAddRowSaveOld(form: UntypedFormGroup) {
-  if (form.invalid) return;
-  this.loadingIndicator = true;
-  const activiteData = { ...form.value };
 
-  // Créer l'Activite
-  this.glogalService.post('activite', activiteData).subscribe({
-    next: (activite: Activity) => {
-      console.log("Activite crée ", activite);
-
-      // Créer la Validation en utilisant l'ID de l'Activite créé
-      const validation: ActivityValidation = {
-        activiteId: activite.id,
-        superviseurId: form.value.superviseurId,
-        commentaire: form.value.commentaire,
-        statut: 'En_Attente',
-        fichierjoint: form.value.fichierjoint || null
-      };
-
-      const fichier: File | undefined = form.value.fichier;
-
-      this.glogalService.createValidation(validation, fichier).subscribe({
-        next: () => {
-          this.addRecordSuccess();
-          this.modalService.dismissAll();
-          form.reset();
-          this.reloadActivities();
-        },
-        error: (err) => console.error('Erreur validation', err),
-        complete: () => this.loadingIndicator = false
-      });
-    },
-    error: (err) => {
-      console.error('Erreur activité', err);
-      this.loadingIndicator = false;
-    }
-  });
-}
-async onAddRowSaveOld2(form: UntypedFormGroup) {
-  if (form.invalid) return;
-  this.loadingIndicator = true;
-  const activiteData = { ...form.value };
-  //  Créer l'Activite
-  this.glogalService.post('activite', form.value).subscribe({
-    next: (activite: Activity) => {
-      console.log("Activite crée ==", activite);
-
-      //  Créer la Validation uniquement si un superviseur est sélectionné
-       if (form.value.fichierjoint) {
-        this.activityValidation.fichierjoint = form.value.fichierjoint;
-       }
-      if(form.value.superviseurId) {
-        const validation: ActivityValidation = {
-          activiteId: activite.id,
-          superviseurId: form.value.superviseurId,
-          commentaire: form.value.commentaire || null, // facultatif
-          statut: 'En_Attente',
-          fichierjoint: this.activityValidation.fichierjoint // facultatif
-        };
-
-        const fichier: File | undefined = form.value.fichier;
-      //CREATION DE ACTIVITYVALIDATION
-        this.glogalService.createValidation(validation, fichier).subscribe({
-          next: () => {
-            this.addRecordSuccess();
-            this.modalService.dismissAll();
-            form.reset();
-            this.reloadActivities();
-          },
-          error: (err) => console.error('Erreur validation', err),
-          complete: () => this.loadingIndicator = false
-        });
-      } else {
-        // Pas de superviseur => pas de validation, juste succès Activite
-        this.addRecordSuccess();
-        this.modalService.dismissAll();
-        form.reset();
-        this.reloadActivities();
-        this.loadingIndicator = false;
-      }
-    },
-    error: (err) => {
-      console.error('Erreur activité', err);
-      this.loadingIndicator = false;
-    }
-  });
-}
 
 getCurrentUserId(): number | null {
   const raw = localStorage.getItem('bearerid');
@@ -552,6 +534,8 @@ reloadActivities() {
 }
   // add new record
   addRow(content: any) {
+    this.getMapSuperviseur();
+    this.register.reset();
     this.modalService.open(content, {
       ariaLabelledBy: 'modal-basic-title',
       size: 'lg',
@@ -562,7 +546,7 @@ reloadActivities() {
   selectedEtapeIds: number[] = [];
   
  detailRow(row: any, rowIndex: number, content: any) {
-    this.getAllEtape();
+    this.getAllEtapeALL();
     this.modalService.open(content, {
       ariaLabelledBy: 'modal-basic-title',
       size: 'lg',

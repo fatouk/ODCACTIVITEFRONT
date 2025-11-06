@@ -50,10 +50,10 @@
               </div>
             </div>
             <ngx-datatable #table class="material" [rows]="typeActivites" [loadingIndicator]="loadingIndicator"
-                           columnMode="force" [headerHeight]="60" [footerHeight]="80" rowHeight="auto" [limit]="10"
+                           columnMode="force" [headerHeight]="60" [footerHeight]="0" rowHeight="auto" [limit]="10"
                            [scrollbarH]="scrollBarHorizontal" [reorderable]="reorderable" [selected]="selected"
                            [selectionType]="selection" (select)='onSelect($event)'>
-              <ngx-datatable-column [width]="70" [sortable]="false" [draggable]="false" [resizeable]="false"
+              <ngx-datatable-column *ngIf="useRole.includes('SUPERADMIN')" [width]="70" [sortable]="false" [draggable]="false" [resizeable]="false"
                                     [canAutoResize]="false" [headerCheckboxable]="true" [checkboxable]="true">
               </ngx-datatable-column>
               <ngx-datatable-column [width]="200" name="Nom">
@@ -66,18 +66,16 @@
               <ngx-datatable-column name="Actions" [sortable]="false">
                 <ng-template let-value="value" let-row="row" let-rowIndex="rowIndex" ngx-datatable-cell-template>
                   <span>
-                    <button class="btn btn-tbl-edit h-auto" (click)='editRow(row, rowIndex, editRecord)'>
+                    <button *ngIf="currentUserId===row.created_by.id" class="btn btn-tbl-edit h-auto" (click)='editRow(row, rowIndex, editRecord)'>
                       <i class="fas fa-pen"></i>
                     </button>
-                    <button class="btn btn-tbl-delete h-auto" (click)='deleteSingleRow(row)'>
+                    <button *ngIf="currentUserId===row.created_by.id"  class="btn btn-tbl-delete h-auto" (click)='deleteSingleRow(row)'>
                       <i class="far fa-trash-alt"></i>
                     </button>
                   </span>
                 </ng-template>
               </ngx-datatable-column>
             </ngx-datatable>
-
-
 
             <!-- Add Record Modal Window -->
             <ng-template #addRecord let-modal>

@@ -66,12 +66,12 @@ import {
   ɵɵtemplate,
   ɵɵviewQuerySignal
 } from "./chunk-GMNKFFGC.js";
-import "./chunk-ISM5WLAM.js";
 import {
   animationFrameScheduler,
   fromEvent,
   merge
 } from "./chunk-IC62NIWK.js";
+import "./chunk-ISM5WLAM.js";
 import {
   EMPTY,
   Observable,

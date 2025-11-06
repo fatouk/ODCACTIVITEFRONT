@@ -1,5 +1,7 @@
 import {Participant} from "@core/models/Participant";
 import {Critere} from "@core/models/Critere";
+import { U } from "@fullcalendar/core/internal-common";
+import { Utilisateur } from "./Utilisateur";
 
 export class Etape {
   id?: number;
@@ -11,6 +13,7 @@ export class Etape {
   dateDebut?: Date;
   dateFin?: Date;
   selected?: boolean;
+  created_by?:Utilisateur;
 
   constructor(data?: Partial<Etape>) {
     if (data) {

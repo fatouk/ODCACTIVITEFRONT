@@ -59,6 +59,7 @@ export class EtapeComponent {
   reorderable = true;
   public selected: number[] = [];
   useRole: string[];
+  currentUserId: number | null = this.getCurrentUserId();
   columns = [
     { prop: 'nom' },
     { prop: 'dateDebut' },
@@ -125,7 +126,6 @@ export class EtapeComponent {
   ngOnInit() {
     this.getAllEtape();
     this.getAllCritere();
-
     this.register = this.fb.group({
       id: [''],
       nom: ['', [Validators.required]],
@@ -173,10 +173,28 @@ export class EtapeComponent {
       }
     })
   }
+  getCurrentUserId(): number | null {
+  const raw = localStorage.getItem('bearerid');
+  // console.log('Raw currentUser from localStorage:', raw);
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    // si le stockage est juste un id string, parsed sera une string
+    if (typeof parsed === 'number') return parsed;
+    if (typeof parsed === 'string') return parseInt(parsed, 10);
+    // sinon on cherche parsed.id
+    if (parsed) return Number(parsed);
+    return null;
+  } catch {
+    // raw n'était pas JSON (peut être un id en string)
+    const val = parseInt(raw, 10);
+    return isNaN(val) ? null : val;
+  }
+}
 
   onAddRowSave(form: UntypedFormGroup) {
     this.loadingIndicator = true;
-    this.glogalService.post('etape', [form.value]).subscribe({
+    this.glogalService.postId('etape',this.currentUserId!, [form.value]).subscribe({
       next: (response) => {
         // Ajouter la nouvelle role reçue à la liste locale
         // Si votre backend renvoie un tableau d'un seul élément (la nouvelle étape),
@@ -193,16 +211,14 @@ export class EtapeComponent {
         form.reset();
         // Fermer les modales si nécessaire
         this.modalService.dismissAll();
-
+        this.getAllEtape();
         // Afficher un toast de succès
         this.addRecordSuccess();
       },
       error: (err: { status: number; error: any; message?: string }) => {
         console.error('Erreur reçue:', err);
-
         let message = 'Une erreur est survenue. Veuillez réessayer.';
         let title = '<span class="text-red-500">Échec</span>';
-
         if (err.error?.message) {
           message = err.error.message;
         } else if (err.message) {
@@ -328,7 +344,7 @@ export class EtapeComponent {
       };
       console.log('Objet updatedEtape envoyé au backend:', updatedEtape);
       // Préparer l'objet mis à jour (ici l'exemple suppose que `form.value` contient les nouvelles données)
-      this.glogalService.update("etape", updatedEtape.id, updatedEtape).subscribe({
+      this.glogalService.updateId("etape", updatedEtape.id,this.currentUserId!, updatedEtape).subscribe({
         next: () => {
           this.modalService.dismissAll(); // Fermer le modal
           this.editRecordSuccess();       // Appeler callback si défini
@@ -378,13 +394,13 @@ export class EtapeComponent {
 
 
   addRecordSuccess() {
-    this.toastr.success('Adjonction réalisée avec succès.', '');
+    this.toastr.success('Adjout réalisé avec succès', '');
   }
   editRecordSuccess() {
-    this.toastr.success('Modification opéré', '');
+    this.toastr.success('Modification faite avec succès', '');
   }
   deleteRecordSuccess(count: number) {
-    this.toastr.success(count + 'Eradication diligente pleinement consommée.', '');
+    this.toastr.success(count + 'Suppression fait avec succès', '');
   }
 
   fileUploadSuccess(){
