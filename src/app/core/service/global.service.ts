@@ -136,9 +136,8 @@ export class GlobalService {
 
   // Gestion des erreurs améliorée
   private handleError(error: any): Observable<never> {
-
     let errorMessage = 'Une erreur inconnue est survenue';
-
+    console.error('Erreur capturée dans handleError :', error);
     // Cas 1: HttpErrorResponse normal
     if (error instanceof HttpErrorResponse) {
 
@@ -164,6 +163,9 @@ export class GlobalService {
               break;
             case 404:
               errorMessage = 'Ressource non trouvée';
+              break;
+              case 409:
+              errorMessage = 'Ce nom existe déjà. Veuillez en choisir un autre.' ;
               break;
             case 500:
               errorMessage = 'Erreur interne du serveur';

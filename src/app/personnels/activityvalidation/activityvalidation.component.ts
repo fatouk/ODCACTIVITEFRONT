@@ -523,6 +523,7 @@ onFileSelectedVal(event: any): void {
 
   // delete single row
   deleteSingleRow(row: any) {
+    console.log("row 1", row);
     Swal.fire({
       title: 'Voulez vous vraiment supprimer?',
       showCancelButton: true,
@@ -531,6 +532,7 @@ onFileSelectedVal(event: any): void {
       confirmButtonText: 'Oui, supprimer !',
       cancelButtonText: 'Annuler'
     }).then((result) => {
+      console.log("result to delete", result);
       if (result.value) {
         this.deleteRecord(row);
         this.deleteRecordSuccess(1);
@@ -665,9 +667,10 @@ getActivitesEnAttenteForSuperviseur() {
 }
 
   deleteRecord(row: any) {
+    console.log("row to delete", row);
     // Activer le loading pendant la suppression
     this.loadingIndicator = true;
-
+console.log("row to delete", row);
     this.glogalService.delete("activite", row.id!).subscribe({
       next: (response: any) => {
         console.log('Réponse de suppression:', response);

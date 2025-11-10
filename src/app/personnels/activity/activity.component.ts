@@ -26,7 +26,7 @@ import { timer } from 'rxjs';
 import { A } from '@angular/cdk/activedescendant-key-manager.d-Bjic5obv';
 import { ActivityValidation } from '@core/models/ActivityValidation';
 import { Utilisateur } from '@core/models/Utilisateur';
-import { co } from '@fullcalendar/core/internal-common';
+import { co, el } from '@fullcalendar/core/internal-common';
 
 
 @Component({
@@ -426,8 +426,6 @@ getMapSuperviseur(): void {
       this.loadingIndicator = false;}
 }
 
-
-
 getCurrentUserId(): number | null {
   const raw = localStorage.getItem('bearerid');
   console.log('Raw currentUser from localStorage:', raw);
@@ -456,14 +454,11 @@ async onAddRowSave(form: UntypedFormGroup) {
   this.glogalService.post('activite', form.value).subscribe({
     next: (activite: Activity) => {
       console.log("✅ Activité créée :", activite);
-
       // Vérifie si un superviseur est sélectionné
       const superviseurId = form.value.superviseurId;
       const fichierjoint = form.value.fichierjoint || null;
-
       if (superviseurId) {
         console.log(" Création de validation pour superviseur :", superviseurId);
-
         // Prépare la validation
         const validation: ActivityValidation = {
           envoyeurId: this.getCurrentUserId() || undefined,
@@ -473,9 +468,7 @@ async onAddRowSave(form: UntypedFormGroup) {
           statut: 'En_Attente',
           fichierjoint
         };
-
         const fichier: File | undefined = form.value.fichier;
-
         // Étape 2 : Création de la validation
         this.glogalService.createValidation(validation, fichier).subscribe({
           next: () => {
@@ -501,12 +494,12 @@ async onAddRowSave(form: UntypedFormGroup) {
         form.reset();
         this.loadingIndicator = false;
       }
-    },
-    error: (err) => {
-      console.error("❌ Erreur activité :", err);
-      this.loadingIndicator = false;
+    },error: (err) => {
+        this.toastr.error(err, "Erreur");
+        console.error("❌ Erreur activité :", err);
+        this.loadingIndicator = false;
     }
-  });
+ });
 }
 
 addSuccessMessage(duration: number = 3000) {
@@ -718,18 +711,14 @@ onSuperviseurSelected(event: any) {
       }
     });
   }
-
- 
-
   deleteRecord(row: any) {
     // Activer le loading pendant la suppression
     this.loadingIndicator = true;
 
-    // this.glogalService.delete("activite", row.id!).subscribe({
-      this.glogalService.delete("activite", row!).subscribe({
+     this.glogalService.delete("activite", row.id!).subscribe({
+      // this.glogalService.delete("activite", row!).subscribe({
       next: (response: any) => {
         console.log('Réponse de suppression:', response);
-
         // Succès de la suppression
         Swal.fire({
           icon: 'success',
@@ -766,8 +755,6 @@ onSuperviseurSelected(event: any) {
       }
     });
   }
-
-
   filterDatatable(event: any) {
     const val = event.target.value.toLowerCase();
 
@@ -779,8 +766,6 @@ onSuperviseurSelected(event: any) {
 
     this.table.offset = 0;
   }
-
-
 
   addRecordSuccess() {
     this.toastr.success('Adjout réalisé avec succès.', '');

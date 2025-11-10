@@ -4,6 +4,7 @@ import { NgScrollbar } from 'ngx-scrollbar';
 import { NgbProgressbar } from '@ng-bootstrap/ng-bootstrap';
 import { RouterLink } from '@angular/router';
 import {GlobalService} from "@core/service/global.service";
+import { Participant } from '@core/models/Participant';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -36,27 +37,53 @@ export class MainComponent implements OnInit {
   public lineChartOptions!: Partial<ChartOptions>;
   public barChartOptions!: Partial<ChartOptions>;
   public stackBarChart!: Partial<ChartOptions>;
-
-
   nombreUtilisateurs: number | undefined;
   nombreActivite: number = 0;
   nombreActiviteEncours: number = 0;
   nombreActiviteEnAttente: number = 0;
   nombreActiviteTerminer: number = 0;
   nombreGenre: any[] = [];
+  participants:Participant[] = [];
+  totalHommes = 0;
+  totalFemmes = 0;
 
   constructor(private globalService: GlobalService) {}
 
   ngOnInit() {
-    this.chart2();
+    
+    this.getParticipants();
     this.getNombreUitlisateur();
     this.getNombreActivite();
     this.getNombreActiviteEncours();
     this.getNombreActiviteEnAttente();
     this.getNombreActiviteTerminer();
     this.fetchGenreData();
+    
+    this.chart2();
+   
   }
-
+  // Récupérer la liste des participants
+  getParticipants() {
+    this.globalService.get('participant').subscribe({
+      next: (data) => {
+        this.participants = data  as Participant[];
+        this.totalFemmes = this.participants.filter(p => p.phone === "Femme").length;
+        this.totalHommes = this.participants.filter(p => p.phone === "Homme").length;
+        // console.log('Participants chargés :', this.totalFemmes, this.totalHommes);
+        this.chart2();
+       
+      },
+      error: (err) => {
+        console.error('Erreur lors du chargement des participants', err);
+      },
+    });
+  }
+  countParticipants() {
+  console.log('Nombre total de participants :', this.participants);
+  this.totalHommes = this.participants.filter(p => p.phone === "Homme").length;
+  this.totalFemmes = this.participants.filter(p => p.phone === "Femme").length;
+ 
+}
   getNombreUitlisateur() {
     this.globalService.get("utilisateur/nombre").subscribe({
       next: (count) => this.nombreUtilisateurs = count,
@@ -103,20 +130,21 @@ export class MainComponent implements OnInit {
   }
 
   private chart2() {
-    const hommeData = this.nombreGenre.find(g => g.genre === "Homme")?.count || 0;
-    const femmeData = this.nombreGenre.find(g => g.genre === "Femme")?.count || 0;
-    //  const hommeData = 100;
-    // const femmeData = 50;
-    this.barChartOptions = {
+
+   console.log("Participants pour le graphique :", this.totalFemmes, this.totalHommes);
+   
+  console.log('Total Hommes :', this.totalHommes);
+  console.log('Total Femmes :', this.totalFemmes);
+       this.barChartOptions = {
 
       series: [
         {
           name: 'Hommes',
-          data: [hommeData],
+          data: [this.totalFemmes],
         },
         {
           name: 'Femmes',
-          data: [femmeData],
+          data: [this.totalHommes],
         },
       ],
       chart: {
