@@ -19,6 +19,7 @@ export class ListeGlobaleComponent {
 
 
   filterByDebut() {
+    console.log("Navigating to listeGlobale with debut filter");
     this.router.navigate(['/listeGlobale'],{ queryParams: { filter: 'debut' } } );
      this.modalService.dismissAll();
     // this.activeModal.close('Filtre début appliqué');

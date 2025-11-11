@@ -55,6 +55,8 @@
         <p>Début: {{ selectedActivityStart | date: 'yyyy-MM-dd' }}</p>
         <p>Fin: {{ selectedActivityEnd | date: 'yyyy-MM-dd' }}</p>
         <p>Description: {{ selectedActivityDescription }}</p>
+        <p>Créée par: {{ selectedActivityCreaded }}</p>
+        <p>Dans la salle: {{ selectedActivitySalle }}</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-dark" (click)="modal.close('Ok')">Fermer</button>

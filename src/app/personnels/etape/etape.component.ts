@@ -21,6 +21,7 @@ import {Router, RouterLink} from "@angular/router";
 import {firstValueFrom} from "rxjs";
 import {ListeGlobaleComponent} from "./liste-globale/liste-globale.component";
 import {AuthService} from "@core";
+import { C } from '@angular/cdk/scrolling-module.d-ud2XrbF8';
 
 @Component({
   selector: 'app-etape',
@@ -542,7 +543,18 @@ export class EtapeComponent {
   }
 
 
+  filterByDebut(row:any): void {
+     console.log("Filtrage par liste de début pour l'étape ID :", row.id);
+   
+      this.listeModalComponent?.filterByDebut();
+   
+  }
 
+  filterByResultat(row:any): void {
+    if (this.listeModalComponent && this.selectedEtapeId !== null) {
+      this.listeModalComponent.filterByDebut();
+    }
+  } 
 }
 
 export interface selectEtapeInterface {

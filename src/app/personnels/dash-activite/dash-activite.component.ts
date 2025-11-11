@@ -32,6 +32,8 @@ export class DashActiviteComponent implements OnInit {
   @ViewChild('activityDetailsModal') activityDetailsModal!: TemplateRef<any>; // Référence au template de la modal
   selectedActivityDescription: string | undefined = '';
   selectedActivityTitle: string | undefined = '';
+  selectedActivityCreaded: string | undefined = '';
+  selectedActivitySalle: string | undefined = '';
   selectedActivityStart: Date | null | undefined;
   selectedActivityEnd: Date | null | undefined;
   // calendar: Calendar | null;
@@ -74,7 +76,10 @@ export class DashActiviteComponent implements OnInit {
   }
 
   handleEventClick(clickInfo: EventClickArg) {
+    console.log('Détails de l\'activité cliquée :', clickInfo.event);
     this.selectedActivityTitle = clickInfo.event.title;
+    this.selectedActivityCreaded = clickInfo.event.extendedProps['createdBy'];
+     this.selectedActivitySalle = clickInfo.event.extendedProps['salleId'];
     this.selectedActivityStart = clickInfo.event.start;
     this.selectedActivityEnd = clickInfo.event.end;
     this.selectedActivityDescription = clickInfo.event.extendedProps['description'];
@@ -118,8 +123,13 @@ export class DashActiviteComponent implements OnInit {
         start: activity.dateDebut ,
         end: activity.dateFin ,
         color: color,
+        
+        
         extendedProps: {
-          description: activity.description // Inclure la description ici
+          description: activity.description ,        
+          createdBy: activity.createdBy?.prenom + ' ' + activity.createdBy?.nom, // ou juste l'id si tu veux
+          salleId: activity.salleId?.nom,
+  // Inclure la description ici
         } as any // Le type de extendedProps peut nécessiter un any pour la flexibilité
       } as EventInput;
     });
@@ -161,6 +171,8 @@ export class DashActiviteComponent implements OnInit {
         startDate: formatDate(row.event.start, 'yyyy-MM-dd', 'fr') || '',
         endDate: formatDate(row.event.end, 'yyyy-MM-dd', 'fr') || '',
         details: row.event.extendedProps.details,
+        userId: row.event.extendedProps.userId,
+        salleId: row.event.extendedProps.salleId,
       });
     } else {
       this.calendarForm.reset();
@@ -183,6 +195,8 @@ export class DashActiviteComponent implements OnInit {
       className: this.getClassNameValue(this.calendarData.category),
       groupId: this.calendarData.category,
       details: this.calendarData.details,
+      userId: this.calendarData.userId,
+      salleId: this.calendarData.salleId,
     });
     this.calendarOptions.events = this.calendarEvents;
     this.calendarForm.reset();
@@ -216,6 +230,8 @@ export class DashActiviteComponent implements OnInit {
     singleEvent.className = this.getClassNameValue(calendarData.category);
     singleEvent.groupId = calendarData.category;
     singleEvent['details'] = calendarData.details;
+    singleEvent['userId'] = calendarData.userId;
+    singleEvent['salleId'] = calendarData.salleId;
     calendarEvents[eventIndex] = singleEvent;
     this.calendarEvents = calendarEvents; // reassign the array
 

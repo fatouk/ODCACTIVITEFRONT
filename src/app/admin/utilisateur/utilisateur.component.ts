@@ -139,19 +139,18 @@ export class UtilisateurComponent {
     this.loadingIndicator = true;
     console.log("Form value", form.value);
     // const payload = { ...form.value, role: Number(form.value.role),entite:{ id: form.value.entite } // <- transforme l'ID en objet}; // conversion string → number
-  console.log("Payload envoyé", form.value);
+  // console.log("Payload envoyé", form.value);
     this.glogalService.post('utilisateur', form.value).subscribe({
       next: (response) => {
         // Ajouter la nouvelle role reçue à la liste locale
         this.users.push(response);
         console.log(response)
         this.users = [...this.users];
-
         // Réinitialiser l'objet salles
         form.reset();
         // Fermer les modales si nécessaire
         this.modalService.dismissAll();
-
+        this.getAllUtilisateur();
         // Afficher un toast de succès
         this.addRecordSuccess();
       },
@@ -218,7 +217,7 @@ export class UtilisateurComponent {
     if (form?.value?.id) {
       // Préparer l'objet mis à jour (ici l'exemple suppose que `form.value` contient les nouvelles données)
       const updatedUtilisateur = form.value;
-console.log("Updated Utilisateur========", updatedUtilisateur);
+      // console.log("Updated Utilisateur========", updatedUtilisateur);
       this.glogalService.update("utilisateur", updatedUtilisateur.id, updatedUtilisateur).subscribe({
         next: () => {
           this.modalService.dismissAll(); // Fermer le modal

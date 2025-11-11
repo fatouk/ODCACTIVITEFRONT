@@ -110,6 +110,16 @@
                     <button *ngIf="useRole.includes('PERSONNEL') && currentUserId===row.created_by.id" class="btn btn-tbl-delete h-auto" (click)='deleteSingleRow(row)'>
                       <i class="far fa-trash-alt"></i>
                     </button>
+
+                    
+  <button title="Voir Liste de debut" class="btn btn-warning mr-3" (click)='filterByDebut(row)'>
+     <i class="far fa-file"></i>
+  </button>
+
+  <button title="Voir liste de sortie" class="btn btn-dark" style="margin-left: 7px" (click)='filterByResultat(row)'>
+     <i class="far fa-file"></i>
+  </button>
+
                   </span>
                 </ng-template>
               </ngx-datatable-column>

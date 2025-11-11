@@ -737,7 +737,7 @@ onSuperviseurSelected(event: any) {
         }, 500);
       },
       error: (err) => {
-        console.log('Erreur de suppression:', err);
+        console.log('Il ya déjà des participants liés:', err);
 
         // Extraire le message d'erreur
         const msg = this.glogalService.extractMessageFromError(err);
@@ -748,7 +748,7 @@ onSuperviseurSelected(event: any) {
         // Afficher l'erreur
         Swal.fire({
           icon: 'error',
-          title: 'Erreur de suppression',
+          title: 'Il ya déjà des participants liés',
           text: msg,
           confirmButtonText: 'OK'
         });
