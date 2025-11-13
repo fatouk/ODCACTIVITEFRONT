@@ -13,6 +13,7 @@ import autoTable, { RowInput } from 'jspdf-autotable';
 import jsPDF from 'jspdf';
 import Swal from "sweetalert2";
 import {exportToExcel} from "@core/utils/export_utils";
+import { co } from '@fullcalendar/core/internal-common';
 
 @Component({
   selector: 'app-liste-debut',
@@ -92,6 +93,7 @@ export class ListeDebutComponent {
   }
 
   afficherParticipantsDepuisListe(idListe: number) {
+    console.log("ID de la liste reçue pour afficher les participants de début:", idListe);  
     this.glogalService.getId("liste", idListe).pipe(
       switchMap((liste: any) => {
         console.log("Données reçues de la table liste:", liste);

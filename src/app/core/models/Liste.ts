@@ -6,4 +6,5 @@ export class Liste {
   listeDebut!: boolean;
   listeResultat!: boolean;
   etape!: Etape;
+  listeId!: number;
 }

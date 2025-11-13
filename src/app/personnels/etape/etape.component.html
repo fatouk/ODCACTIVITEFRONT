@@ -112,11 +112,11 @@
                     </button>
 
                     
-  <button title="Voir Liste de debut" class="btn btn-warning mr-3" (click)='filterByDebut(row)'>
+  <button *ngIf="row.listeDebut.length!==0" title="Voir Liste de debut" class="btn btn-warning mr-3" (click)='openListeDebut(row)'>
      <i class="far fa-file"></i>
   </button>
 
-  <button title="Voir liste de sortie" class="btn btn-dark" style="margin-left: 7px" (click)='filterByResultat(row)'>
+  <button *ngIf="row.listeResultat.length!==0"  title="Voir liste de sortie" class="btn btn-dark" style="margin-left: 7px" (click)='filterByResultat(row)'>
      <i class="far fa-file"></i>
   </button>
 

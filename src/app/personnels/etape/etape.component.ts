@@ -22,6 +22,7 @@ import {firstValueFrom} from "rxjs";
 import {ListeGlobaleComponent} from "./liste-globale/liste-globale.component";
 import {AuthService} from "@core";
 import { C } from '@angular/cdk/scrolling-module.d-ud2XrbF8';
+import { Liste } from '@core/models/Liste';
 
 @Component({
   selector: 'app-etape',
@@ -165,7 +166,7 @@ export class EtapeComponent {
   getAllEtape(){
     this.loadingIndicator = true;
     this.glogalService.get('etape').subscribe({
-      next:(value: Etape[]) =>{
+      next:(value: Etape[]) =>{        
         this.etape = value;
         this.filteredData = [...value];
         setTimeout(() =>{
@@ -392,8 +393,6 @@ export class EtapeComponent {
     this.table.offset = 0;
   }
 
-
-
   addRecordSuccess() {
     this.toastr.success('Adjout réalisé avec succès', '');
   }
@@ -541,20 +540,42 @@ export class EtapeComponent {
         size: 'md'
       });
   }
-
-
-  filterByDebut(row:any): void {
-     console.log("Filtrage par liste de début pour l'étape ID :", row.id);
-   
-      this.listeModalComponent?.filterByDebut();
-   
+   filterByDebut(row:any){ 
+    console.log("Navigating to listeGlobale with debut filter ID", row);
+    this.router.navigate(['/listeGlobale'],{ queryParams: { filter: 'debut' } } );
+     this.modalService.dismissAll();
+    // this.activeModal.close('Filtre début appliqué');
   }
 
-  filterByResultat(row:any): void {
-    if (this.listeModalComponent && this.selectedEtapeId !== null) {
-      this.listeModalComponent.filterByDebut();
-    }
-  } 
+  filterByResultat(row:any){
+    this.router.navigate(['/listeGlobale'],{ queryParams: { filter: 'resultat' } } );
+    this.modalService.dismissAll();
+    // this.activeModal.close('Filtre début appliqué');
+  }
+
+openListeDebut(row: any) {
+  console.log("Ouverture de la liste de début pour l'étape:", row.listeDebut[0].liste.id);
+    sessionStorage.setItem('listeDebut', JSON.stringify(row.listeDebut[0].liste));
+    this.router.navigate(['/listeDebut']);
+  }
+
+  openListeResultat(row: Liste) {
+    sessionStorage.setItem('listeResultat', JSON.stringify(row));
+    this.router.navigate(['/listeResultat']);
+  }
+
+  // filterByDebut(row:any): void {
+  //    console.log("Filtrage par liste de début pour l'étape ID :", row.id);
+   
+  //     this.listeModalComponent?.filterByDebut();
+   
+  // }
+
+  // filterByResultat(row:any): void {
+   
+  //     this.listeModalComponent?.filterByDebut();
+    
+  // } 
 }
 
 export interface selectEtapeInterface {

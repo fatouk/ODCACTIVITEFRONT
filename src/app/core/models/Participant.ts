@@ -1,4 +1,5 @@
 import {Activity} from "@core/models/Activity";
+import { Liste } from "./Liste";
 
 export class Participant {
   id?: number;
@@ -11,4 +12,5 @@ export class Participant {
   isBlacklisted?: boolean;
   checkedIn?: boolean;
   checkInTime?: Date | null;
+  liste?: Liste;
 }

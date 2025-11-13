@@ -17,6 +17,7 @@ import {Participant} from "@core/models/Participant";
 import {Activity} from "@core/models/Activity";
 import {NgClass, NgIf} from "@angular/common";
 import {RouterLink} from "@angular/router";
+import { Liste } from '@core/models/Liste';
 
 @Component({
   selector: 'app-participant',
@@ -110,6 +111,7 @@ export class ParticipantComponent {
     this.loadingIndicator = true;
     this.glogalService.get('participant').subscribe({
       next:(value: TypeActivite[]) =>{
+        console.log("Participants chargés:", value);
         this.participants = value;
         this.filteredData = [...value];
         setTimeout(() =>{
@@ -121,7 +123,6 @@ export class ParticipantComponent {
 
   filterDatatable(event: any) {
     const val = event.target.value.toLowerCase();
-
     this.participants = this.filteredData.filter((item) => {
       return Object.values(item).some((field: any) =>
         field?.toString().toLowerCase().includes(val)
@@ -173,5 +174,6 @@ export interface selectParticipantInterface {
   genre?: string;
   isBlacklisted?: boolean;
   activite?: Activity;// Permettre que ce soit null
-}
+  
 
+}
