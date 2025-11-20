@@ -1,0 +1,17 @@
+/* reporting.component.scss */
+
+:host {
+  display: flex;
+  flex-direction: column; /* ou row si tu veux horizontal */
+  justify-content: center; /* centre verticalement */
+  align-items: center; /* centre horizontalement */
+  min-height: 100vh; /* prend toute la hauteur de la fenêtre */
+  padding: 20px; /* optionnel, pour respirer un peu */
+  box-sizing: border-box;
+  background-color: #f9f9f9; /* optionnel */
+}
+
+.reporting-container {
+  width: 100%;
+  max-width: 1200px; /* limite la largeur pour desktop */
+}

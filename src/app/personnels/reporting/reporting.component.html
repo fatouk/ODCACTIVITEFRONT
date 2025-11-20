@@ -1,0 +1,62 @@
+<div class="reporting-container">
+  <h2>Reporting des participants</h2>
+
+  <div>
+    <label>Type:</label>
+    <select (change)="onTypeChange($event)">
+      <option value="">-- Sélectionner --</option>
+      <option *ngFor="let t of types" [value]="t">{{ t | titlecase }}</option>
+    </select>
+
+    <!-- Activité -->
+    <label *ngIf="selectedType === 'activite'">Activité:</label>
+    <select *ngIf="selectedType === 'activite'" (change)="onFilterChange($event)">
+      <option value="">-- Sélectionner --</option>
+      <option *ngFor="let a of activites" [value]="a.id">{{ a.nom }}</option>
+    </select>
+
+    <!-- Entité -->
+    <label *ngIf="selectedType === 'entite'">Entité:</label>
+    <select *ngIf="selectedType === 'entite'" (change)="onFilterChange($event)">
+      <option value="">-- Sélectionner --</option>
+      <option *ngFor="let e of entites" [value]="e.id">{{ e.nom }}</option>
+    </select>
+
+    <!-- Dates seulement pour entité -->
+    <label *ngIf="selectedType === 'entite'">Date début:</label>
+    <input *ngIf="selectedType === 'entite'" type="date" [(ngModel)]="dateDebut" />
+
+    <label *ngIf="selectedType === 'entite'">Date fin:</label>
+    <input *ngIf="selectedType === 'entite'" type="date" [(ngModel)]="dateFin" />
+
+   
+    <button (click)="exportReportingToExcel()">Exporter Excel</button>
+  </div>
+
+  <table *ngIf="reportingItems.length > 0">
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Prénom</th>
+        <th>Genre</th>
+        <th>Email</th>
+        <th>Téléphone</th>
+        <th *ngIf="selectedType === 'activite'">Activité</th>
+        <th *ngIf="selectedType === 'entite'">Entité</th>
+        <th *ngIf="selectedType === 'entite'">Date de création</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of reportingItems">
+        <td>{{ item.participantNom }}</td>
+        <td>{{ item.participantPrenom }}</td>
+        <td>{{ item.participantGenre }}</td>
+        <td>{{ item.participantEmail }}</td>
+        <td>{{ item.participantTelephone }}</td>
+        <td *ngIf="selectedType === 'activite'">{{ item.activiteNom }}</td>
+        <td *ngIf="selectedType === 'entite'">{{ item.entiteNom }}</td>
+        <td *ngIf="selectedType === 'entite'">{{ item.entiteDateCreation | date:'dd/MM/yyyy' }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
