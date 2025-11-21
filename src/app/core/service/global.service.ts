@@ -89,6 +89,11 @@ export class GlobalService {
       catchError(this.handleError.bind(this))
     );
   }
+  updateP(name: string,id: number,listes:Object, object: Object): Observable<Object> {
+    return this.http.put(`${this.baseUrl}/${name}/${id}/${listes}`, object).pipe(
+      catchError(this.handleError.bind(this))
+    );
+  }
 
 
   /**

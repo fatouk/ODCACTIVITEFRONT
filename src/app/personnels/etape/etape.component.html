@@ -111,14 +111,14 @@
                       <i class="far fa-trash-alt"></i>
                     </button>
 
-                    
-  <button *ngIf="row.listeDebut.length!==0" title="Voir Liste de debut" class="btn btn-warning mr-3" (click)='openListeDebut(row)'>
+               
+  <!-- <button *ngIf="row.listeDebut.length!==0" title="Voir Liste de debut" class="btn btn-warning mr-3" (click)='openListeDebut(row)'>
      <i class="far fa-file"></i>
-  </button>
+  </button> -->
 
-  <button *ngIf="row.listeResultat.length!==0"  title="Voir liste de sortie" class="btn btn-dark" style="margin-left: 7px" (click)='filterByResultat(row)'>
+  <!-- <button *ngIf="row.listeResultat.length!==0"  title="Voir liste de sortie" class="btn btn-dark" style="margin-left: 7px" (click)='filterByResultat(row)'>
      <i class="far fa-file"></i>
-  </button>
+  </button> -->
 
                   </span>
                 </ng-template>
@@ -169,6 +169,15 @@
                       }
                     </div>
                   </div>
+<!-- AJOUT ACTIVITE -->
+<div class="col-xl-6 col-lg-4 col-md-12 col-sm-12 mb-2">
+                      <label>Activité...<span class="text-danger"> * </span></label>
+                      <select class="form-select form-control" formControlName="activite" required>
+                        <option value="" [ngValue]="null" disabled>-- Sélectionnez une activité --</option>
+                        <option *ngFor="let activite of activites"  [value]="activite.id">{{activite.nom}}</option>
+                      </select>
+                    </div>
+
 <!--                  <div class="row">-->
                     <div class="form-group">
                       <label class="d-block">Critere <span class="text-danger">*</span></label>

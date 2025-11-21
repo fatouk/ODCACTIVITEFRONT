@@ -35,7 +35,7 @@
                       </div>
                       <div class="header-buttons-left">
                         <div class="tbl-btn-style">
-                          <button class="btn btn-icon icon-left bg-warning text-white rounded-button" (click)='addRow(addRecord)'>
+                          <button *ngIf="useRole.includes('PERSONNEL')" class="btn btn-icon icon-left bg-warning text-white rounded-button" (click)='addRow(addRecord)'>
                             <i class="material-icons">add</i>
                           </button>
                           <button [hidden]=!isRowSelected class="btn btn-icon icon-left btn-danger rounded-button"

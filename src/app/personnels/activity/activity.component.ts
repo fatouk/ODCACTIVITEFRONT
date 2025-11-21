@@ -607,7 +607,7 @@ this.selectedEtapeIds = etapes.map((e: any) => e.id);
     this.selectedRowData = row;
   }
   onEditSave(form: UntypedFormGroup) {
-    console.log("modification", form.value);
+    console.log("modification++++++++++", form.value);
     if (form?.value?.id) {
       // Utiliser les IDs sélectionnés directement depuis selectedEtapeIds
       const etapesObjects = (this.selectedEtapeIds || []).map((id: number) => ({ id }));
@@ -617,8 +617,9 @@ this.selectedEtapeIds = etapes.map((e: any) => e.id);
         ...form.value,
         etapes: etapesObjects,
       };
-
-      this.glogalService.update("activite", updatedActivite.id, updatedActivite).subscribe({
+console.log("updatedActivite avec etapes ==========:", updatedActivite.etape);
+console.log("select etape=====",etapesObjects)
+      this.glogalService.updateP("activite", updatedActivite.id, updatedActivite.etape, updatedActivite).subscribe({
         next: () => {
           this.modalService.dismissAll();
           this.editRecordSuccess();
@@ -839,7 +840,7 @@ export interface selectActiviteInterface {
   dateFin: Date;
   objectifParticipation: number;
   entite: Entite;
-  etape: Etape;
+  etapes: Etape[];
   salleId: Salle;
   typeActivite: TypeActivite;
 }

@@ -23,6 +23,9 @@ import {ListeGlobaleComponent} from "./liste-globale/liste-globale.component";
 import {AuthService} from "@core";
 import { C } from '@angular/cdk/scrolling-module.d-ud2XrbF8';
 import { Liste } from '@core/models/Liste';
+import { A } from '@angular/cdk/activedescendant-key-manager.d-Bjic5obv';
+import { Activity } from '@core/models/Activity';
+import { Utilisateur } from '@core/models/Utilisateur';
 
 @Component({
   selector: 'app-etape',
@@ -46,6 +49,7 @@ export class EtapeComponent {
   rows = [];
   etape:  Etape[] = [];
   critere:  Critere[] = [];
+  activites: Activity[] = [];
   selectedCriteres: number[] = [];
   selectedFile: File[] = [];
   uploading: boolean = false;
@@ -85,6 +89,7 @@ export class EtapeComponent {
       dateDebut: new UntypedFormControl(),
       dateFin: new UntypedFormControl(),
       critere: new UntypedFormControl(),
+      activite: new UntypedFormControl(),
     });
     window.onresize = () => {
       this.scrollBarHorizontal = window.innerWidth < 1200;
@@ -128,12 +133,14 @@ export class EtapeComponent {
   ngOnInit() {
     this.getAllEtape();
     this.getAllCritere();
+    this.getAllActivite();
     this.register = this.fb.group({
       id: [''],
       nom: ['', [Validators.required]],
       dateDebut: ['', [Validators.required]],
       dateFin: ['', [Validators.required]],
       critere:this.fb.array ([], [Validators.required]),
+      activite: [null, [Validators.required]],
 
     });
   }
@@ -175,6 +182,19 @@ export class EtapeComponent {
       }
     })
   }
+
+   getAllActivite(){
+    this.loadingIndicator = true;
+    this.glogalService.get('activite').subscribe({
+      next:(value: Activity[]) =>{        
+        this.activites = value;
+        this.filteredData = [...value];
+        setTimeout(() =>{
+          this.loadingIndicator = false;
+        },500);
+      }
+    })
+  }
   getCurrentUserId(): number | null {
   const raw = localStorage.getItem('bearerid');
   // console.log('Raw currentUser from localStorage:', raw);
@@ -196,7 +216,8 @@ export class EtapeComponent {
 
   onAddRowSave(form: UntypedFormGroup) {
     this.loadingIndicator = true;
-    this.glogalService.postId('etape',this.currentUserId!, [form.value]).subscribe({
+   console.log("etaape ajout==========",form.value.created_by);
+    this.glogalService.postId('etape',this.currentUserId!, form.value).subscribe({
       next: (response) => {
         // Ajouter la nouvelle role reçue à la liste locale
         // Si votre backend renvoie un tableau d'un seul élément (la nouvelle étape),
@@ -502,10 +523,8 @@ export class EtapeComponent {
         })
         .catch((error) => {
           this.loadingIndicator = false;
-
           // Maintenant l'erreur est déjà formatée par le service
           const errorMessage = error.message || 'Une erreur est survenue lors du téléchargement des fichiers.';
-
           let iconType: 'error' | 'warning' = 'error';
           if (error.status === 403) {
             iconType = 'warning'; // Pour les étapes terminées, utiliser un warning plutôt qu'une erreur
@@ -582,7 +601,9 @@ export interface selectEtapeInterface {
   nom: string;
   dateDebut: Date;
   dateFin: Date;
-  listeDebut?: Participant[]; // Doit être un tableau
-  listeResultat?: Participant[]; // Doit être un tableau
+  // listeDebut?: Participant[]; // Doit être un tableau
+  // listeResultat?: Participant[]; // Doit être un tableau
   critere: Critere;
+  activite: Activity;
+  created_by:Utilisateur;
 }
