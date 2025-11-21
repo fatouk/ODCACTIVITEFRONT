@@ -145,6 +145,19 @@
       "submenu": [],
       "roles": ["PERSONNEL","SUPERADMIN"]
     },
+
+    {
+      "path": "/reporting",
+      "title": "Reporting",
+      "iconType": "feather",
+      "icon": "user-check",
+      "class": "",
+      "groupTitle": false,
+      "badge": "",
+      "badgeClass": "",
+      "submenu": [],
+      "roles": ["PERSONNEL","SUPERADMIN"]
+    },
     {
       "path": "/listeNoire",
       "title": "Liste Noire",

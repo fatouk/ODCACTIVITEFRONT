@@ -56,6 +56,10 @@ export const APP_ROUTE: Route[] = [
             loadComponent: () => import('./personnels/type-activite/type-activite.component').then(c => c.TypeActiviteComponent)
           },
           {
+            path: 'reporting',
+            loadComponent: () => import('./personnels/reporting/reporting.component').then(c => c.ReportingComponent)
+          },
+          {
             path: 'participant',
             loadComponent: () => import('./personnels/participant/participant.component').then(c => c.ParticipantComponent)
           },

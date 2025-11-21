@@ -68,39 +68,24 @@ export class ReportingComponent {
   }
 
   // Charger les données du reporting
-  
-   // Charger les données du reporting
-loadReporting(id?: string) {
-  if (!this.selectedType) return;
+  loadReporting(id?: string) {
+    if (!this.selectedType) return;
 
-  let endpoint = '';
-  const params: any = {};
+    const endpoint = this.selectedType === 'activite' ? 'reporting/activite/'+id : 'reporting/entite';
+    const params: any = {};
 
-  if (this.selectedType === 'activite') {
-    endpoint = `reporting/activite/${id}`;
-  } else if (this.selectedType === 'entite') {
-    endpoint = 'reporting/entite';
-    if (id) params.entiteId = id;
-    if (this.dateDebut) params.dateDebut = this.dateDebut;
-    if (this.dateFin) params.dateFin = this.dateFin;
+    if (id) params[`${this.selectedType}Id`] = id;
+    if (this.selectedType === 'entite') {
+      if (this.dateDebut) params.dateDebut = this.dateDebut;
+      if (this.dateFin) params.dateFin = this.dateFin;
+    }
+
+    this.globalService.get(endpoint).subscribe({
+      next: (res: ReportingItem[]) => this.reportingItems = res,
+      error: () => Swal.fire('Erreur', 'Impossible de charger les données du reporting', 'error'),
+    });
   }
 
-  console.log('Requête reporting:', { endpoint, params }); // Debug
-
-  this.globalService.get(endpoint, params).subscribe({
-    next: (res: ReportingItem[]) => {
-      this.reportingItems = res;
-      console.log('Données reçues:', res); // Debug
-      if (res.length === 0) {
-        Swal.fire('Info', 'Aucune donnée trouvée pour ces critères', 'info');
-      }
-    },
-    error: (error) => {
-      console.error('Erreur complète:', error);
-      Swal.fire('Erreur', 'Impossible de charger les données du reporting', 'error');
-    },
-  });
-}
   // Export Excel
   exportReportingToExcel() {
     if (!this.reportingItems || this.reportingItems.length === 0) {
