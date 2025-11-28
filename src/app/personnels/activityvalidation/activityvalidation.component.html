@@ -125,8 +125,9 @@
               <ngx-datatable-column name="Actions" [sortable]="false">
                 <ng-template let-value="value" let-row="row" let-rowIndex="rowIndex" ngx-datatable-cell-template>
                   <span>
+                    
                     <button title="Apporter une validation"
-                      *ngIf="useRole.includes('PERSONNEL')"
+                      *ngIf="useRole.includes('PERSONNEL') && idsuperviseur===currentUserId && idsuperviseur!==null"
                       class="btn btn-tbl-edit h-auto" (click)='editRowValidation(row,validationModal)'>
                       <i class="fas fa-pen"></i>
                     </button>

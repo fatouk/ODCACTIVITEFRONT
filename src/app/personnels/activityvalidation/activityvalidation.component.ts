@@ -56,8 +56,10 @@ export class ActivityvalidationComponent {
   selectedFile: File | null = null;
   activityValidation: ActivityValidation = new ActivityValidation();
   selectedActivite?: Activity = new Activity();
-  currentUserId: number | null = null;
+  currentUserId: number|null= this.getCurrentUserId()
   canDelete: boolean = false;
+  actval?:ActivityValidation[];
+  idsuperviseur?:number | null = null;;
   @ViewChild('validationModal') validationModal: any;
   validationForm!: UntypedFormGroup;
   //Constructeur
@@ -107,7 +109,7 @@ export class ActivityvalidationComponent {
         });
       }
     
-      ngOnInit() {
+    ngOnInit() {
     this.getAllEntite();
     this.getAllActivite();
     this.getAllTypeActivite();
@@ -586,9 +588,9 @@ updateDeleteRights(activite: any) {
         val.id === lastValidation.id && val.envoyeurId === currentUserId
     };
   });
-  // ✅ On met la valeur à true seulement si :
-  // 1️⃣ c’est la dernière validation
-  // 2️⃣ l’envoyeur est l’utilisateur courant
+  //  On met la valeur à true seulement si :
+  //  c’est la dernière validation
+  //  l’envoyeur est l’utilisateur courant
   this.canDelete = lastValidation.envoyeurId === currentUserId;
 }
 reloadModal() {
@@ -623,7 +625,7 @@ deleteValidation(valid:number): void {
 
   getCurrentUserId(): number | null {
   const raw = localStorage.getItem('bearerid');
-  console.log('Raw currentUser from localStorage:', raw);
+  // console.log('Raw currentUser from localStorage:', raw);
   if (!raw) return null;
 
   try {
@@ -643,15 +645,16 @@ deleteValidation(valid:number): void {
 // 🔹 toutes les activités où je suis superviseur
 getActivitesForSuperviseur() {
     const id = this.getCurrentUserId();
-    console.error('ID utilisateur trouvé dans le stockage local:', id);
+    // console.error('ID utilisateur trouvé dans le stockage local:', id);
   if (id === null) {
-    console.error('ID utilisateur non trouvé dans le stockage local.');
-    return;
+       return;
   }
   this.glogalService.getActivitesBySuperviseur(id).subscribe({
     next: (data) => {
       this.activiteval = data;
-      console.log('Toutes mes activités :', data);
+      const allValidations = this.activiteval.flatMap(a => a.activitevalidation);
+      const validationForCurrentUser = allValidations.find(v =>v?.superviseurId === this.currentUserId);
+    this.idsuperviseur = validationForCurrentUser?.superviseurId || null;
     },
     error: (err) => console.error('Erreur getActivitesBySuperviseur:', err)
   });
@@ -679,7 +682,7 @@ getActivitesEnAttenteForSuperviseur() {
 console.log("row to delete", row);
     this.glogalService.delete("activite", row.id!).subscribe({
       next: (response: any) => {
-        console.log('Réponse de suppression:', response);
+        // console.log('Réponse de suppression:', response);
 
         // Succès de la suppression
         Swal.fire({
