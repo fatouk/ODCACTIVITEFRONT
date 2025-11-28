@@ -5,6 +5,9 @@ import { NgbProgressbar } from '@ng-bootstrap/ng-bootstrap';
 import { RouterLink } from '@angular/router';
 import {GlobalService} from "@core/service/global.service";
 import { Participant } from '@core/models/Participant';
+import { NgForOf } from "@angular/common";
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
+import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -28,10 +31,13 @@ export type ChartOptions = {
     templateUrl: './main.component.html',
     styleUrls: ['./main.component.scss'],
     imports: [
-        RouterLink,
-        NgApexchartsModule,
-
-    ]
+    RouterLink,
+    NgApexchartsModule,
+    NgForOf,FormsModule,
+    ReactiveFormsModule,    
+    NgxDatatableModule,
+    ReactiveFormsModule
+]
 })
 export class MainComponent implements OnInit {
   public lineChartOptions!: Partial<ChartOptions>;
@@ -46,11 +52,23 @@ export class MainComponent implements OnInit {
   participants:Participant[] = [];
   totalHommes = 0;
   totalFemmes = 0;
+    selectedActivite: number | 0 = 0;
+    selectedEntite: number | 0 = 0;
+    dateDebut: Date | null =null;
+    dateFin: Date | null = null;
+    formCriteres!: UntypedFormGroup;
+    activites: any[] = []; // → liste des activités chargées depuis ton API
+    entites: any[] = [];
+  constructor(private globalService: GlobalService,private fb: UntypedFormBuilder) { 
+    this.formCriteres = this.fb.group({
+        selectedActivite: new UntypedFormControl(''),
+        selectedEntite: new UntypedFormControl(''),
+        dateDebut: new UntypedFormControl(''),
+        dateFin: new UntypedFormControl(''),
+        });
+      }
 
-  constructor(private globalService: GlobalService) {}
-
-  ngOnInit() {
-    
+  ngOnInit() {    
     this.getParticipants();
     this.getNombreUitlisateur();
     this.getNombreActivite();
@@ -58,7 +76,9 @@ export class MainComponent implements OnInit {
     this.getNombreActiviteEnAttente();
     this.getNombreActiviteTerminer();
     this.fetchGenreData();
-    
+    this.getActivites();
+    this.getEntites(); 
+    this.applyFilters();    
     this.chart2();
    
   }
@@ -67,8 +87,8 @@ export class MainComponent implements OnInit {
     this.globalService.get('participant').subscribe({
       next: (data) => {
         this.participants = data  as Participant[];
-        this.totalFemmes = this.participants.filter(p => p.phone === "Femme").length;
-        this.totalHommes = this.participants.filter(p => p.phone === "Homme").length;
+        this.totalFemmes = this.participants.filter(p => p.genre === "Femme").length;
+        this.totalHommes = this.participants.filter(p => p.genre === "Homme").length;
         // console.log('Participants chargés :', this.totalFemmes, this.totalHommes);
         this.chart2();
        
@@ -78,10 +98,26 @@ export class MainComponent implements OnInit {
       },
     });
   }
+     getActivites() {
+      this.globalService.get('activite').subscribe({
+        next: (data) => { this.activites = data; },
+        error: (err) => {
+          console.error('Erreur lors du chargement des activités', err);
+        },
+      }); }
+
+    getEntites() {
+      this.globalService.get('entite').subscribe({
+        next: (data) => { this.entites = data; },   
+        error: (err) => {
+          console.error('Erreur lors du chargement des entités', err);
+        },
+      }); }
+
   countParticipants() {
-  console.log('Nombre total de participants :', this.participants);
-  this.totalHommes = this.participants.filter(p => p.phone === "Homme").length;
-  this.totalFemmes = this.participants.filter(p => p.phone === "Femme").length;
+  // console.log('Nombre total de participants :', this.participants);
+  this.totalHommes = this.participants.filter(p => p.genre === "Homme").length;
+  this.totalFemmes = this.participants.filter(p => p.genre === "Femme").length;
  
 }
   getNombreUitlisateur() {
@@ -130,13 +166,10 @@ export class MainComponent implements OnInit {
   }
 
   private chart2() {
-
-   console.log("Participants pour le graphique :", this.totalFemmes, this.totalHommes);
-   
-  console.log('Total Hommes :', this.totalHommes);
-  console.log('Total Femmes :', this.totalFemmes);
+  //  console.log("Participants pour le graphique :", this.totalFemmes, this.totalHommes);
+  //  console.log('Total Hommes :', this.totalHommes);
+  // console.log('Total Femmes :', this.totalFemmes);
        this.barChartOptions = {
-
       series: [
         {
           name: 'Hommes',
@@ -216,5 +249,31 @@ export class MainComponent implements OnInit {
       },
     };
   }
+ applyFilters() {
+  
+this.dateDebut=this.formCriteres.get('dateDebut')?.value;
+this.dateFin=this.formCriteres.get('dateFin')?.value;
+this.selectedActivite=this.formCriteres.get('selectedActivite')?.value;
+this.selectedEntite=this.formCriteres.get('selectedEntite')?.value;
+  this.globalService.getStatsFiltres(this.dateDebut!,this.dateFin!,this.selectedActivite,this.selectedEntite).subscribe((data) => {
+    this.updateChart(data);
+    this.chart2();
+  });
+}
 
+updateChart(data: any) {
+  this.participants = data  as Participant[];
+  this.totalFemmes = this.participants.filter(p => p.genre === "Femme").length;
+  this.totalHommes = this.participants.filter(p => p.genre === "Homme").length;
+  this.barChartOptions.series = [
+    {
+      name: "Participants",
+      data: data.series // ← liste des valeurs
+    }
+  ];
+
+  this.barChartOptions.xaxis = {
+    categories: data.labels // ← catégories mises à jour
+  };
+}
 }

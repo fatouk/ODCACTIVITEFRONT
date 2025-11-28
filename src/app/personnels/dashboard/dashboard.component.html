@@ -104,7 +104,7 @@
           </div>
         </div>
       </div>
-      <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+      <!-- <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
         <div class="card">
           <div class="card-statistic-4">
             <div class="align-items-center justify-content-between">
@@ -113,9 +113,7 @@
                   <div class="card-content">
                     <h6>Nombre personnels</h6>
                     <h2 class="mb-3 font-18">{{ nombreUtilisateurs }}</h2>
-<!--                    <p class="mb-0"><span class="col-red">65%</span></p>-->
                   </div>
-<!--                  <ngb-progressbar type="danger" [value]="65" height=".3rem"></ngb-progressbar>-->
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 right-grid-spacing">
                   <div class="banner-img">
@@ -126,15 +124,17 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
-  <div>  
+   
+    <div>  
    <form [formGroup]="formCriteres">
     <div class="row g-3 mb-4"> 
   <!-- Filtre par Entité -->
   <div class="col-md-3">
     <label for="entite" class="form-label">Entité</label>
-    <select id="entite" class="form-select form-control" formControlName="selectedEntite" (change)="applyFilters()">
+    <!-- (change)="applyFilters()" -->
+    <select id="entite" class="form-select form-control" formControlName="selectedEntite"(change)="onEntiteChange()" >
       <option value="">Toutes les entités</option>
       <ng-container *ngFor="let e of entites">
         <option [value]="e.id">{{ e.nom }}</option>
@@ -146,11 +146,14 @@
     <label for="activite" class="form-label">Activité</label>
     <select id="activite" class="form-select form-control" formControlName="selectedActivite" (change)="applyFilters()">
       <option value="">Toutes les activités</option>
-      <ng-container *ngFor="let a of activites">
+      <ng-container *ngFor="let a of filteredActivites">
         <option [value]="a.id">{{ a.nom }}</option>
       </ng-container>
      </select>
-   
+    <!-- <select class="form-select form-control" formControlName="selectedActivite" (change)="applyFilters()" >
+    <option value="" [ngValue]="null" disabled>-- Toutes les activités --</option>
+    <option *ngFor="let activite of activites"  [value]="activite.id">{{activite.nom}}</option>
+    </select>  -->
   </div>
   <!-- Filtre Date début -->
   <div class="col-md-3">
@@ -167,21 +170,33 @@
   </form>
 </div>
 
-    <div class="row">
-      <div class="col-md-12 col-lg-6 col-xl-6 ">
-        <div class="card">
-          <div class="card-header">
-            <h4>Statistique des participants</h4>
-          </div>
-          <div class="card-body">
-            <apx-chart [series]="barChartOptions.series!" [chart]="barChartOptions.chart!"
-              [dataLabels]="barChartOptions.dataLabels!" [stroke]="barChartOptions.stroke!"
-              [colors]="barChartOptions.colors!" [title]="barChartOptions.title!" [grid]="barChartOptions.grid!"
-              [tooltip]="barChartOptions.tooltip!" [plotOptions]="barChartOptions.plotOptions!"
-              [yaxis]="barChartOptions.yaxis!" [xaxis]="barChartOptions.xaxis!"></apx-chart>
-          </div>
-        </div>
+<!-- CHART -->
+<div class="row">
+  <div class="col-md-12 col-lg-6 col-xl-6">
+    <div class="card">
+      <div class="card-header">
+        <h4>Statistique des participants</h4>
+      </div>
+
+      <div class="card-body">
+        <apx-chart
+          [series]="barChartOptions.series!"
+          [chart]="barChartOptions.chart!"
+          [dataLabels]="barChartOptions.dataLabels!"
+          [stroke]="barChartOptions.stroke!"
+          [colors]="barChartOptions.colors!"
+          [title]="barChartOptions.title!"
+          [grid]="barChartOptions.grid!"
+          [tooltip]="barChartOptions.tooltip!"
+          [plotOptions]="barChartOptions.plotOptions!"
+          [yaxis]="barChartOptions.yaxis!"
+          [xaxis]="barChartOptions.xaxis!"
+        >
+        </apx-chart>
       </div>
     </div>
   </div>
+</div>
+  </div>
 </section>
+

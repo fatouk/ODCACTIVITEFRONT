@@ -13,6 +13,8 @@ import {ToastrService} from "ngx-toastr";
 import {GlobalService} from "@core/service/global.service";
 import Swal from "sweetalert2";
 import {Salle} from "@core/models/Salle";
+import {Activity} from "@core/models/Activity";
+
 import {NgIf} from "@angular/common";
 import {RouterLink} from "@angular/router";
 
@@ -32,6 +34,7 @@ export class SalleComponent {
   @ViewChild(DatatableComponent, { static: false }) table!: DatatableComponent;
   rows = [];
   salles:  Salle[] = [];
+  activites:Activity[]=[];
   scrollBarHorizontal = window.innerWidth < 1200;
   selectedRowData!: selectSalleInterface;
   filteredData: any[] = [];
@@ -106,6 +109,17 @@ export class SalleComponent {
     });
   }
   // fetch data
+  getAllActivite(){
+      this.glogalService.get('activite').subscribe({
+      next:(value: Activity[]) =>{
+        this.activites = value;
+        this.filteredData = [...value];
+        setTimeout(() =>{
+          this.loadingIndicator = false;
+        },500);
+      }
+    })
+  }
   getAllSalle(){
     this.loadingIndicator = true;
     this.glogalService.get('salle').subscribe({

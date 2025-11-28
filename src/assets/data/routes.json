@@ -51,7 +51,7 @@
     },
     {
       "path": "/dashboardActivite",
-      "title": "Dashboard Ativité",
+      "title": "Dashboard Activité",
       "iconType": "feather",
       "icon": "bar-chart-2",
       "class": "",
@@ -144,6 +144,19 @@
       "badgeClass": "",
       "submenu": [],
       "roles": ["PERSONNEL","SUPERADMIN"]
+    },
+    
+    {
+      "path": "/dashboard2",
+      "title": "Mes Statistiques",
+      "iconType": "feather",
+      "icon": "bar-chart-2",
+      "class": "",
+      "groupTitle": false,
+      "badge": "",
+      "badgeClass": "",
+      "submenu": [],
+      "roles": ["PERSONNEL"]
     },
     {
       "path": "/listeNoire",

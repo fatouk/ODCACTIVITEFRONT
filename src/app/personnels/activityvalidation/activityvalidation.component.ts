@@ -117,6 +117,8 @@ export class ActivityvalidationComponent {
     this.getMapEnvoyeur();
     this.getActivitesForSuperviseur();
     this.getCurrentUserId();
+    this.reloadActivitieValidations();
+    this.reloadActivities();
     currentUserId: this.getCurrentUserId();
       }
     
@@ -226,7 +228,7 @@ getMapEnvoyeur(): void {
   
   this.glogalService.createValidation(value).subscribe({
     next: (activite) => {
-      console.log("Activite crée ", activite);
+      console.log("validation Activite crée ", activite);
       }});
     
       error: (err:any) => {
@@ -329,7 +331,9 @@ editSuccessMessage(duration: number = 3000) {
 reloadActivities() {
   this.glogalService.get('activite').subscribe({
     next: (data) => {
-      this.activite = Array.isArray(data) ? data : [];
+      // this.activite = Array.isArray(data) ? data : [];
+      this.activite = data ;
+      console.log("mes activites reload====",this.activite);
       this.loadingIndicator = false;
       this.cdr.detectChanges(); // force Angular à rafraîchir l'affichage
     },
@@ -342,7 +346,9 @@ reloadActivities() {
 reloadActivitieValidations() {
   this.glogalService.get('activitevalidation').subscribe({
     next: (data) => {
-      this.activitevalidation = Array.isArray(data) ? data : [];
+      // this.activitevalidation = Array.isArray(data) ? data : [];
+      this.activitevalidation =  data ;
+console.log("mes activitesvalidations reload====",this.activitevalidation);
       this.loadingIndicator = false;
       this.cdr.detectChanges(); // force Angular à rafraîchir l'affichage
     },

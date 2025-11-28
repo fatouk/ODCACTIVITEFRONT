@@ -31,6 +31,10 @@ export const APP_ROUTE: Route[] = [
             path: 'entiteDetail',
             loadComponent: () => import('./admin/entite-detail/entite-detail.component').then(c => c.EntiteDetailComponent)
           },
+            {
+            path: 'dashboard2',
+            loadComponent: () => import('./personnels/dashboard/dashboard.component').then(c => c.DashboardComponent)
+          },
           {
             path: 'activite',
             loadComponent: () => import('./personnels/activity/activity.component').then(c => c.ActivityComponent)

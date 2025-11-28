@@ -9,6 +9,7 @@ export class ActivityValidation {
   activiteId?: number;
   superviseurId?: number;
   canDelete?: boolean;
+  isRead?:boolean;
   constructor(data?: Partial<ActivityValidation>) {
     if (data) {
       Object.assign(this, data);

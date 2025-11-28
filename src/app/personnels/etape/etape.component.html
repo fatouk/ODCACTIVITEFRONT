@@ -85,6 +85,7 @@
                   }
                 </ng-template>
               </ngx-datatable-column>
+
               <!--              <ngx-datatable-column [width]="200" name="Date Début">-->
               <!--                <ng-template let-row="row" let-value="value" let-i="index" ngx-datatable-cell-template>-->
               <!--                  <div class="name-col-style">-->
@@ -171,8 +172,8 @@
                   </div>
 <!-- AJOUT ACTIVITE -->
 <div class="col-xl-6 col-lg-4 col-md-12 col-sm-12 mb-2">
-                      <label>Activité...<span class="text-danger"> * </span></label>
-                      <select class="form-select form-control" formControlName="activite" required>
+                      <label>Activité...</label>
+                      <select class="form-select form-control" formControlName="activite" >
                         <option value="" [ngValue]="null" disabled>-- Sélectionnez une activité --</option>
                         <option *ngFor="let activite of activites"  [value]="activite.id">{{activite.nom}}</option>
                       </select>
@@ -234,6 +235,7 @@
                         <small class="form-text text-danger"> Nom etape est obligatoire</small>
                       }
                     </div>
+                                                        
                   </div>
 
                   <div class="row">
@@ -254,6 +256,13 @@
                       }
                     </div>
                   </div>
+                  <div class="col-xl-6 col-lg-4 col-md-12 col-sm-12 mb-2">
+                      <label>Activité...</label>
+                      <select class="form-select form-control" formControlName="activite" >
+                        <option value="" [ngValue]="null" disabled>-- Sélectionnez une activité --</option>
+                        <option *ngFor="let activite of activites"  [value]="activite.id">{{activite.nom}}</option>
+                      </select>
+                    </div>
                   <div class="form-group">
                     <label class="d-block">Critere <span class="text-danger">*</span></label>
                     <div *ngFor="let criteres of critere" class="form-check form-check-inline">
@@ -320,6 +329,14 @@
                      
                     </div>
                   </div>
+                  <div class="col-xl-6 col-lg-4 col-md-12 col-sm-12 mb-2">
+                      <label>Activité...</label>
+                      <select class="form-select form-control readonly-select" formControlName="activite" >
+                        <option value="" [ngValue]="null" disabled>-- Sélectionnez une activité --</option>
+                        <option *ngFor="let activite of activites"  [value]="activite.id">{{activite.nom}}</option>
+                      </select>
+                    </div>
+
                   <div class="form-group">
                     <label class="d-block">Critere</label>
                     <div *ngFor="let criteres of critere" class="form-check form-check-inline">

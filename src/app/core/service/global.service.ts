@@ -1,7 +1,9 @@
+import { D } from '@angular/cdk/bidi-module.d-D-fEBKdS';
 import { O } from '@angular/cdk/overlay-module.d-B3qEQtts';
-import {HttpClient, HttpErrorResponse, HttpResponse} from '@angular/common/http';
+import {HttpClient, HttpErrorResponse, HttpParams, HttpResponse} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ActivityValidation } from '@core/models/ActivityValidation';
+import { co } from '@fullcalendar/core/internal-common';
 import { environment } from 'environments/environment.development';
 import { Observable, throwError } from 'rxjs';
 import {catchError} from "rxjs/operators";
@@ -13,7 +15,7 @@ import {catchError} from "rxjs/operators";
 export class GlobalService {
 
   public baseUrl = environment.apiUrl;
-
+a:any;
   constructor(private http: HttpClient) {}
 
   /**
@@ -28,20 +30,26 @@ export class GlobalService {
     );
     
   }
-  get2(endpoint: string): Observable<any> {
-    console.log('Appel GET à l\'endpoint :', `${this.baseUrl}/${endpoint}`);
+  getParticipantByCritere(endpoint: string,dateDebut:string,dateFin:string,activiteId:number,entiteId:number): Observable<any> {
+    console.log('Appel GET à l\'endpoint :', `${this.baseUrl}/${endpoint}/${dateDebut}/${dateFin}/${activiteId}/${entiteId}`);
   return this.http.get<any>(`${this.baseUrl}/${endpoint}`).pipe(
     catchError(this.handleError.bind(this))
   );
 }
 
   getId(name: string, id:number): Observable<any> {
+    console.log('Appel GET à l\'endpoint :', `${this.baseUrl}/${name}/${id}`);
     return this.http.get(`${this.baseUrl}/${name}/${id}`).pipe(
       catchError(this.handleError.bind(this))
     );
   }
 
   getById(name: string, id: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}/${name}/${id}`).pipe(
+      catchError(this.handleError.bind(this))
+    );
+  }
+    getByActivite(name: string, id: string): Observable<any> {
     return this.http.get(`${this.baseUrl}/${name}/${id}`).pipe(
       catchError(this.handleError.bind(this))
     );
@@ -267,4 +275,34 @@ getFichierUrl(id: number): Observable<any[]> {
       responseType: 'blob'
     });
   }
+  getStatsFiltres(dateDebut: Date, dateFin: Date, activiteId: number, entiteId: number): Observable<any> {
+   this.a={
+      dateDebut: dateDebut,
+      dateFin: dateFin,
+      activiteId: activiteId,
+      entiteId: entiteId  
+   }
+   let params = new HttpParams();
+
+  if (dateDebut!=null){
+params = params.set('dateDebut', dateDebut.toString());
+  } 
+  if (dateFin!=null) params = params.set('dateFin', dateFin.toString());
+  if (activiteId) params = params.set('activiteId', activiteId);
+  if (entiteId) params = params.set('entiteId', entiteId);
+    return this.http.get(`${this.baseUrl}/participant/critere`, {params}).pipe(
+      catchError(this.handleError.bind(this))
+    );
+  }
+    
+  //   let url = `${this.baseUrl}/participant/${id}${dateDebut}/${dateFin}`;
+  //   if (activiteId) {
+  //     url += `/${activiteId}`;
+  //   }
+  //   if (entiteId) {
+  //     url += `/${entiteId}`;
+  //   }
+  //   console.log("mon url=========",url);
+  //   return this.http.get<any>(url);
+  // } 
 }

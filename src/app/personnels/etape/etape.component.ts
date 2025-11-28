@@ -140,7 +140,7 @@ export class EtapeComponent {
       dateDebut: ['', [Validators.required]],
       dateFin: ['', [Validators.required]],
       critere:this.fb.array ([], [Validators.required]),
-      activite: [null, [Validators.required]],
+      activite: [null],
 
     });
   }
@@ -172,7 +172,7 @@ export class EtapeComponent {
 
   getAllEtape(){
     this.loadingIndicator = true;
-    this.glogalService.get('etape').subscribe({
+    this.glogalService.getByActivite('etape','sansactivite').subscribe({
       next:(value: Etape[]) =>{        
         this.etape = value;
         this.filteredData = [...value];
@@ -187,7 +187,7 @@ export class EtapeComponent {
     this.loadingIndicator = true;
     this.glogalService.get('activite').subscribe({
       next:(value: Activity[]) =>{        
-        this.activites = value;
+         this.activites = value.filter(a => a.createdBy?.id === this.currentUserId);
         this.filteredData = [...value];
         setTimeout(() =>{
           this.loadingIndicator = false;
@@ -216,7 +216,7 @@ export class EtapeComponent {
 
   onAddRowSave(form: UntypedFormGroup) {
     this.loadingIndicator = true;
-   console.log("etaape ajout==========",form.value.created_by);
+  //  console.log("etaape ajout==========",form.value.created_by);
     this.glogalService.postId('etape',this.currentUserId!, form.value).subscribe({
       next: (response) => {
         // Ajouter la nouvelle role reçue à la liste locale
@@ -278,6 +278,7 @@ export class EtapeComponent {
   }
   // edit record
   editRow(row: any, rowIndex: number, content: any) {
+    console.log("row==========",row)
     this.modalService.open(content, {
       ariaLabelledBy: 'modal-basic-title',
       size: 'lg',
@@ -287,6 +288,7 @@ export class EtapeComponent {
       nom: row.nom,
       dateDebut: row.dateDebut,
       dateFin: row.dateFin,
+      activite: row.activiteid
     });
 
     this.selectedCriteres = []; // Réinitialiser le tableau

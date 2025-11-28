@@ -171,7 +171,7 @@ export class ActivityComponent {
   }
 
   ngOnInit() {
-    this.getAllEtape();
+    this.getAllEtapeALL();
     this.getAllEntite();
     this.getAllActivite();
     this.getAllTypeActivite();
@@ -227,29 +227,68 @@ export class ActivityComponent {
   // On écoute les deux champs
   this.register.get('dateDebut')?.valueChanges.subscribe(() => checkDates());
   this.register.get('dateFin')?.valueChanges.subscribe(() => checkDates());
-
-  
   // initialize detail form group
-     this.detailForm = this.fb.group({
-      id: [''],
-      nom: [{ value: this.selectedRowData.nom, disabled: true }, [Validators.required]],      titre: ['', [Validators.required]],
-      lieu: ['', [Validators.required]],
-      description: ['', [Validators.required]],
-      dateDebut: ['', [Validators.required]],
-      dateFin: ['', [Validators.required]],
-      objectifParticipation: [null, [Validators.required]],
-      entite: [null, [Validators.required]],
-      etape: [null, [Validators.required]],
-      salleId: [null, [Validators.required]],
-      typeId: [null, [Validators.required]],
-      typeActivite: [null, [Validators.required]],
-      superviseurId: [null],
-      commentaire: [''],
-      fichier: [null],
-      fichierjoint: [''],
+  console.log("selectedRowData au niveau composant constructeur :", this.selectedRowData);
+    //  this.detailForm = this.fb.group({
+    //   id: [''],
+    //   nom: [{ value: this.selectedRowData.nom, disabled: true }, [Validators.required]],      
+    //   titre: ['', [Validators.required]],
+    //   lieu: ['', [Validators.required]],
+    //   description: ['', [Validators.required]],
+    //   dateDebut: ['', [Validators.required]],
+    //   dateFin: ['', [Validators.required]],
+    //   objectifParticipation: [null, [Validators.required]],
+    //   entite: [null, [Validators.required]],
+    //   etape: [null, [Validators.required]],
+    //   salleId: [null, [Validators.required]],
+    //   typeId: [null, [Validators.required]],
+    //   typeActivite: [null, [Validators.required]],
+    //   superviseurId: [null],
+    //   commentaire: [''],
+    //   fichier: [null],
+    //   fichierjoint: [''],
+    // });
+
+    // Initialise d’abord un formulaire vide
+  this.detailForm = this.fb.group({
+    id: [''],
+    nom: [{ value: '', disabled: true }, [Validators.required]],
+    titre: ['', [Validators.required]],
+    lieu: ['', [Validators.required]],
+    description: ['', [Validators.required]],
+    dateDebut: ['', [Validators.required]],
+    dateFin: ['', [Validators.required]],
+    objectifParticipation: [null, [Validators.required]],
+    entite: [null, [Validators.required]],
+    etape: [null, [Validators.required]],
+    salleId: [null, [Validators.required]],
+    typeId: [null, [Validators.required]],
+    typeActivite: [null, [Validators.required]],
+    superviseurId: [null],
+    commentaire: [''],
+    fichier: [null],
+    fichierjoint: [''],
+  });
+  }
+ngOnChanges() {
+  if (this.selectedRowData) {
+    console.log("selectedRowData reçu :", this.selectedRowData);
+
+    this.detailForm.patchValue({    
+      nom: this.selectedRowData.nom,
+      titre: this.selectedRowData.titre,
+      lieu: this.selectedRowData.lieu,
+      description: this.selectedRowData.description,
+      dateDebut: this.selectedRowData.dateDebut,
+      dateFin: this.selectedRowData.dateFin,
+      objectifParticipation: this.selectedRowData.objectifParticipation,
+      entite: this.selectedRowData.entite,
+      etape: this.selectedRowData.etapes,
+      salleId: this.selectedRowData.salleId,
+      typeActivite: this.selectedRowData.typeActivite,
     });
   }
-
+}
 getMapSuperviseur(): void {
   this.glogalService.get('utilisateur').subscribe({
     next: (data: Utilisateur[]) => {
@@ -284,7 +323,7 @@ getMapSuperviseur(): void {
     this.loadingIndicator = true;
     this.glogalService.get('activite').subscribe({
       next:(value: Activity[]) =>{
-          console.log("Activites :", value)
+          console.log("Activites ETAPE :", value)
         this.activite = value;
         this.filteredData = [...value];
         setTimeout(() =>{
@@ -323,11 +362,29 @@ getMapSuperviseur(): void {
 
   getAllEtape(){
     this.loadingIndicator = true;
-    this.glogalService.get('etape').subscribe({
+    this.glogalService.getByActivite('etape','sansactivite').subscribe({
       next:(value: Etape[]) =>{
-        console.log("Etape :=================", value)
-        this.etape = value.filter(etape => etape.created_by?.id === this.currentUserId);
-      // Si tu utilises un tableau filtré ailleurs
+        console.log("Etape :=================avant", value)
+         this.etape = value.filter(etape => etape.created_by?.id === this.currentUserId && etape.activiteid === null);
+      // console.log("Etape :=================apres", this.etape)
+        // Si tu utilises un tableau filtré ailleurs
+      this.filteredData = [...this.etape];
+        // this.etape = value;
+        // this.filteredData = [...value];
+        setTimeout(() =>{
+          this.loadingIndicator = false;
+        },500);
+      }
+    })
+  }
+  getAllEtapeSansFiltre(){
+    this.loadingIndicator = true;
+    this.glogalService.getByActivite('etape','sansactivite').subscribe({
+      next:(value: Etape[]) =>{
+        console.log("Etape :=================avant", value)
+         this.etape = value;
+      // console.log("Etape :=================apres", this.etape)
+        // Si tu utilises un tableau filtré ailleurs
       this.filteredData = [...this.etape];
         // this.etape = value;
         // this.filteredData = [...value];
@@ -539,7 +596,8 @@ reloadActivities() {
   selectedEtapeIds: number[] = [];
   
  detailRow(row: any, rowIndex: number, content: any) {
-    this.getAllEtapeALL();
+  this.ngOnChanges();
+    this.getAllEtapeSansFiltre();
     this.modalService.open(content, {
       ariaLabelledBy: 'modal-basic-title',
       size: 'lg',
@@ -573,6 +631,7 @@ this.selectedEtapeIds = etapes.map((e: any) => e.id);
     this.selectedRowData = row;
   }
   editRow(row: any, rowIndex: number, content: any) {
+    this.ngOnChanges();
     this.getAllEtape();
     this.modalService.open(content, {
       ariaLabelledBy: 'modal-basic-title',
@@ -839,9 +898,9 @@ export interface selectActiviteInterface {
   dateDebut: Date;
   dateFin: Date;
   objectifParticipation: number;
-  entite: Entite;
-  etapes: Etape[];
+  entite: Entite; 
   salleId: Salle;
   typeActivite: TypeActivite;
+  etapes: Etape[];
 }
 

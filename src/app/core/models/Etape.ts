@@ -17,7 +17,9 @@ export class Etape {
   selected?: boolean;
   created_by?:Utilisateur;
   activite?:Activity;
-  listes?:Liste[];
+  listes?:Liste[];  
+activiteid?:number | 0;
+
   
  
 

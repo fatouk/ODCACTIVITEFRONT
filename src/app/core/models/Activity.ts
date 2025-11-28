@@ -14,11 +14,11 @@ export class Activity {
   dateDebut?: Date;
   dateFin?: Date;
   statut?: string;
-  etapes?: Etape[];
   entite?: Entite;
-  typeActivite?: null;
+  etapes?: Etape[];  
   salleId?: Salle;
   createdBy?: Utilisateur;
+  typeActivite?: null;
   activitevalidation?: ActivityValidation[];
 
   constructor(data?: Partial<Activity>) {
