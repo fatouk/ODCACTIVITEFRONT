@@ -247,16 +247,16 @@ a:any;
     return message;
   }
 
-  createValidation(validation: ActivityValidation, fichier?: File): Observable<ActivityValidation> {
+  createValidation(validation: ActivityValidation, fichier?: File,createOrreponse?:String): Observable<ActivityValidation> {
     const formData = new FormData();
     if (fichier) {
-       console.log('Appel GET à l\'endpoint :', `${this.baseUrl}/activitevalidation/create`);
-        console.log('Fichier à envoyer:', fichier, ) ;    
+       console.log('Appel GET à l\'endpoint :', `${this.baseUrl}/activitevalidation/create/${createOrreponse}`);
+        // console.log('Fichier à envoyer:', fichier, ) ;    
           formData.append('fichier', fichier);
     }
     formData.append('validation', new Blob([JSON.stringify(validation)], {type: 'application/json' }));
 
-    return this.http.post<ActivityValidation>(`${this.baseUrl}/activitevalidation/create`, formData);
+    return this.http.post<ActivityValidation>(`${this.baseUrl}/activitevalidation/create/${createOrreponse}`, formData);
 
   }
   getActivitesBySuperviseur(superviseurId: number): Observable<any[]> {
@@ -275,12 +275,13 @@ getFichierUrl(id: number): Observable<any[]> {
       responseType: 'blob'
     });
   }
-  getStatsFiltres(dateDebut: Date, dateFin: Date, activiteId: number, entiteId: number): Observable<any> {
+  getStatsFiltres(dateDebut: Date, dateFin: Date, activiteId: number, entiteId: number,etapeId: number): Observable<any> {
    this.a={
       dateDebut: dateDebut,
       dateFin: dateFin,
       activiteId: activiteId,
-      entiteId: entiteId  
+      entiteId: entiteId,
+      etapeId:etapeId 
    }
    let params = new HttpParams();
 
@@ -290,6 +291,7 @@ params = params.set('dateDebut', dateDebut.toString());
   if (dateFin!=null) params = params.set('dateFin', dateFin.toString());
   if (activiteId) params = params.set('activiteId', activiteId);
   if (entiteId) params = params.set('entiteId', entiteId);
+   if (etapeId) params = params.set('etapeId', etapeId);
     return this.http.get(`${this.baseUrl}/participant/critere`, {params}).pipe(
       catchError(this.handleError.bind(this))
     );

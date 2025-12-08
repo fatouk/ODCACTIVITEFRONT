@@ -124,10 +124,10 @@
               </ngx-datatable-column>
               <ngx-datatable-column name="Actions" [sortable]="false">
                 <ng-template let-value="value" let-row="row" let-rowIndex="rowIndex" ngx-datatable-cell-template>
-                  <span>
-                    
+                  <span>       
+                     <!-- *ngIf="useRole.includes('PERSONNEL') && idsuperviseur===currentUserId && idsuperviseur!==null && row.statut==='En_Cours'"              -->
                     <button title="Apporter une validation"
-                      *ngIf="useRole.includes('PERSONNEL') && idsuperviseur===currentUserId && idsuperviseur!==null"
+                      *ngIf="useRole.includes('PERSONNEL') && idsuperviseur===currentUserId && idsuperviseur!==null && row.statut!=='Termine'"
                       class="btn btn-tbl-edit h-auto" (click)='editRowValidation(row,validationModal)'>
                       <i class="fas fa-pen"></i>
                     </button>

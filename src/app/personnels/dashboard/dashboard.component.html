@@ -144,7 +144,7 @@
 <!-- Filtre par Activité -->
     <div class="col-md-3">
     <label for="activite" class="form-label">Activité</label>
-    <select id="activite" class="form-select form-control" formControlName="selectedActivite" (change)="applyFilters()">
+    <select id="activite" class="form-select form-control" formControlName="selectedActivite" (change)="onActiviteChange()">
       <option value="">Toutes les activités</option>
       <ng-container *ngFor="let a of filteredActivites">
         <option [value]="a.id">{{ a.nom }}</option>
@@ -154,6 +154,18 @@
     <option value="" [ngValue]="null" disabled>-- Toutes les activités --</option>
     <option *ngFor="let activite of activites"  [value]="activite.id">{{activite.nom}}</option>
     </select>  -->
+  </div>
+
+  <!-- Filtre par Etape -->
+    <div class="col-md-3">
+    <label for="etape" class="form-label">Etape</label>
+    <select id="etape" class="form-select form-control" formControlName="selectedEtape" (change)="applyFilters()">
+      <option value="">Toutes les etapes</option>
+      <ng-container *ngFor="let e of filteredEtapes">
+        <option [value]="e.id">{{ e.nom }}</option>
+      </ng-container>
+     </select>
+   
   </div>
   <!-- Filtre Date début -->
   <div class="col-md-3">

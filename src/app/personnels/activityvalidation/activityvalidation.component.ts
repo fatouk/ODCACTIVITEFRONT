@@ -76,7 +76,7 @@ export class ActivityvalidationComponent {
     this.selection = SelectionType.checkbox;
 
     this.useRole = this.authService.getCurrentUserFromStorage().roles;
-    console.log('Roles utilisateur dans ActivityValidationComponent:', this.useRole);
+    // console.log('Roles utilisateur dans ActivityValidationComponent:', this.useRole);
     }
     // select record using check box
       onSelect({ selected }: { selected: any }) {
@@ -129,8 +129,8 @@ export class ActivityvalidationComponent {
     this.loadingIndicator = true;
     this.glogalService.get('utilisateur').subscribe({
       next:(value: Utilisateur[]) =>{
-        this.utilisateursPersonnels = value;
-        console.log("Users",this.utilisateursPersonnels)
+        this.utilisateursPersonnels = value.filter((s: any) => s.id !== this.currentUserId);
+        // console.log("Users",this.utilisateursPersonnels)
 
         this.filteredData = [...value];
         setTimeout(() =>{
@@ -142,15 +142,17 @@ export class ActivityvalidationComponent {
 getMapSuperviseur(): void {
   this.glogalService.get('utilisateur').subscribe({
     next: (data) => {
-      const filteredData = data.filter((s: any) => s.id !== this.currentUserId);
-  console.log('1SuperviseurMap chargée :', filteredData);
+      // const filteredData = data.filter((s: any) => s.id !== this.currentUserId);
+    const filteredData = data;
+
+      console.log('1SuperviseurMap chargée :', filteredData);
       this.superviseurMap = Object.fromEntries(
         filteredData.map((s: any) => [s.id, s.nom + '-' + s.prenom])
       );
       // this.superviseurMap = Object.fromEntries(
       //   data.map((s: any) => [s.id, s.nom+'-'+s.prenom])
       // );
-      console.log('3SuperviseurMap chargée :', this.superviseurMap);
+       console.log('3SuperviseurMap chargée :', this.superviseurMap);
     },
     error: (err) => {
       console.error('Erreur lors du chargement des superviseurs', err);
@@ -163,7 +165,7 @@ getMapEnvoyeur(): void {
       this.envoyeurMap = Object.fromEntries(
         data.map((s: any) => [s.id, s.nom+'-'+s.prenom])
       );
-      console.log('EnvoyeurMap chargée :', this.envoyeurMap);
+      // console.log('EnvoyeurMap chargée :', this.envoyeurMap);
     },
     error: (err) => {
       console.error('Erreur lors du chargement des senvoyer', err);
@@ -184,8 +186,7 @@ getMapEnvoyeur(): void {
   }
   
   getAllEntite(){
-    this.loadingIndicator = true;
-     
+    this.loadingIndicator = true;     
     this.glogalService.get('entite').subscribe({
       next:(value: Entite[]) =>{
         this.entite = value;
@@ -193,7 +194,7 @@ getMapEnvoyeur(): void {
         setTimeout(() =>{
           this.loadingIndicator = false;
         },500);
-         console.log("Entite :", this.entite)
+        //  console.log("Entite :", this.entite)
       }
     })
   }
@@ -217,7 +218,7 @@ getMapEnvoyeur(): void {
     this.glogalService.get('typeActivite').subscribe({
       next:(value: TypeActivite[]) =>{
         this.typeActivites = value;
-        console.log("Type Activite :", this.typeActivites)
+        // console.log("Type Activite :", this.typeActivites)
         this.filteredData = [...value];
         setTimeout(() =>{
           this.loadingIndicator = false;
@@ -227,10 +228,9 @@ getMapEnvoyeur(): void {
   }
 
  onAddRowSaveValidation(form: UntypedFormGroup,value:ActivityValidation) {
-  
   this.glogalService.createValidation(value).subscribe({
     next: (activite) => {
-      console.log("validation Activite crée ", activite);
+      // console.log("validation Activite crée ", activite);
       }});
     
       error: (err:any) => {
@@ -264,7 +264,7 @@ async onAddRowSave(form: UntypedFormGroup) {
 
         const fichier: File | undefined = form.value.fichier;
 
-        this.glogalService.createValidation(validation, fichier).subscribe({
+        this.glogalService.createValidation(validation, fichier,'REPONSE').subscribe({
           next: () => {
             this.addRecordSuccess();
             this.modalService.dismissAll();
@@ -335,7 +335,7 @@ reloadActivities() {
     next: (data) => {
       // this.activite = Array.isArray(data) ? data : [];
       this.activite = data ;
-      console.log("mes activites reload====",this.activite);
+      // console.log("mes activites reload====",this.activite);
       this.loadingIndicator = false;
       this.cdr.detectChanges(); // force Angular à rafraîchir l'affichage
     },
@@ -350,7 +350,7 @@ reloadActivitieValidations() {
     next: (data) => {
       // this.activitevalidation = Array.isArray(data) ? data : [];
       this.activitevalidation =  data ;
-console.log("mes activitesvalidations reload====",this.activitevalidation);
+// console.log("mes activitesvalidations reload====",this.activitevalidation);
       this.loadingIndicator = false;
       this.cdr.detectChanges(); // force Angular à rafraîchir l'affichage
     },
@@ -417,7 +417,7 @@ this.selectedEtapeIds = etapes.map((e: any) => e.id);
       console.log("edit row",row);
     };
     editRowValidation(row:any,validationRecord:any){
-      console.log("validation row",row);
+      // console.log("validation row",row);
       this.selectedActivite=row;
       this.validationForm = this.fb.group({
       statut: ['', Validators.required],      // Acceptee ou Rejetee
@@ -447,7 +447,7 @@ onValidate() {
      fichierChiffre:fichierChiffre || undefined
     };
   
-    this.glogalService.createValidation(validation,fichierChiffre!).subscribe({
+    this.glogalService.createValidation(validation,fichierChiffre!,'REPONSE').subscribe({
       next: () => {
         this.modalService.dismissAll();
         this.getActivitesForSuperviseur();
@@ -460,11 +460,10 @@ onValidate() {
  
 
   onEditSave(form: UntypedFormGroup) {
-    console.log("modification", form.value);
+    // console.log("modification", form.value);
     if (form?.value?.id) {
       // Utiliser les IDs sélectionnés directement depuis selectedEtapeIds
       const etapesObjects = (this.selectedEtapeIds || []).map((id: number) => ({ id }));
-
       // Créer l'objet à envoyer au backend
       const updatedActivite = {
         ...form.value,
@@ -531,7 +530,7 @@ onFileSelectedVal(event: any): void {
 
   // delete single row
   deleteSingleRow(row: any) {
-    console.log("row 1", row);
+    // console.log("row 1", row);
     Swal.fire({
       title: 'Voulez vous vraiment supprimer?',
       showCancelButton: true,
@@ -540,7 +539,7 @@ onFileSelectedVal(event: any): void {
       confirmButtonText: 'Oui, supprimer !',
       cancelButtonText: 'Annuler'
     }).then((result) => {
-      console.log("result to delete", result);
+      // console.log("result to delete", result);
       if (result.value) {
         this.deleteRecord(row);
         this.deleteRecordSuccess(1);
@@ -550,19 +549,18 @@ onFileSelectedVal(event: any): void {
 
   canDeleteValidation(validation: any, activite: any): boolean {
   // Vérifie qu’il y a au moins une validation
-  console.log('this.activitevalidation?.length :', this.activitevalidation?.length)
+  // console.log('this.activitevalidation?.length :', this.activitevalidation?.length)
   if (!this.activitevalidation?.length) return false;
 
   // Trie les validations par date (la plus récente en dernier)
   const sorted = [...this.activitevalidation].sort(
     (a, b) => new Date(a.date!).getTime() - new Date(b.date!).getTime()
   );
-
   const lastValidation = sorted[sorted.length - 1];
 
-  // ✅ Les deux conditions doivent être vraies :
-  // 1️⃣ La validation affichée est la dernière
-  // 2️⃣ L’utilisateur courant est l’envoyeur
+  //  Les deux conditions doivent être vraies :
+  //  La validation affichée est la dernière
+  //  L’utilisateur courant est l’envoyeur
   return ( lastValidation.id === validation.id &&
     validation.envoyeurId === this.getCurrentUserId()); 
 }
@@ -580,7 +578,7 @@ updateDeleteRights(activite: any) {
   const currentUserId = this.getCurrentUserId();
   // console.log('Last validation:', lastValidation);
   // console.log('Current user ID:', currentUserId);
-   console.log(this.canDelete = lastValidation.envoyeurId === currentUserId);
+  //  console.log(this.canDelete = lastValidation.envoyeurId === currentUserId);
     activite.activitevalidation = validations.map((val: any) => {
     return {
       ...val,
@@ -733,8 +731,6 @@ console.log("row to delete", row);
 
     this.table.offset = 0;
   }
-
-
 
   addRecordSuccess() {
     this.toastr.success('Adjout réalisé avec succès.', '');

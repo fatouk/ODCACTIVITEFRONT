@@ -217,7 +217,7 @@ export class UtilisateurComponent {
     if (form?.value?.id) {
       // Préparer l'objet mis à jour (ici l'exemple suppose que `form.value` contient les nouvelles données)
       const updatedUtilisateur = form.value;
-      // console.log("Updated Utilisateur========", updatedUtilisateur);
+       console.log("Updated Utilisateur========", updatedUtilisateur);
       this.glogalService.update("utilisateur", updatedUtilisateur.id, updatedUtilisateur).subscribe({
         next: () => {
           this.modalService.dismissAll(); // Fermer le modal

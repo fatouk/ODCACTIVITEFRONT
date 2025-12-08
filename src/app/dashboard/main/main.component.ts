@@ -54,17 +54,20 @@ export class MainComponent implements OnInit {
   totalFemmes = 0;
     selectedActivite: number | 0 = 0;
     selectedEntite: number | 0 = 0;
+    selectedEtape: number | 0 =0;
     dateDebut: Date | null =null;
     dateFin: Date | null = null;
     formCriteres!: UntypedFormGroup;
     activites: any[] = []; // → liste des activités chargées depuis ton API
     entites: any[] = [];
+    etapes:any[]=[];
   constructor(private globalService: GlobalService,private fb: UntypedFormBuilder) { 
     this.formCriteres = this.fb.group({
         selectedActivite: new UntypedFormControl(''),
         selectedEntite: new UntypedFormControl(''),
         dateDebut: new UntypedFormControl(''),
         dateFin: new UntypedFormControl(''),
+        selectedEtape:new UntypedFormControl('')
         });
       }
 
@@ -78,6 +81,7 @@ export class MainComponent implements OnInit {
     this.fetchGenreData();
     this.getActivites();
     this.getEntites(); 
+    this.getEtapes(); 
     this.applyFilters();    
     this.chart2();
    
@@ -103,6 +107,13 @@ export class MainComponent implements OnInit {
         next: (data) => { this.activites = data; },
         error: (err) => {
           console.error('Erreur lors du chargement des activités', err);
+        },
+      }); }
+       getEtapes() {
+      this.globalService.get('etape').subscribe({
+        next: (data) => { this.etapes = data; },
+        error: (err) => {
+          console.error('Erreur lors du chargement des etapes', err);
         },
       }); }
 
@@ -255,7 +266,7 @@ this.dateDebut=this.formCriteres.get('dateDebut')?.value;
 this.dateFin=this.formCriteres.get('dateFin')?.value;
 this.selectedActivite=this.formCriteres.get('selectedActivite')?.value;
 this.selectedEntite=this.formCriteres.get('selectedEntite')?.value;
-  this.globalService.getStatsFiltres(this.dateDebut!,this.dateFin!,this.selectedActivite,this.selectedEntite).subscribe((data) => {
+  this.globalService.getStatsFiltres(this.dateDebut!,this.dateFin!,this.selectedActivite,this.selectedEntite,this.selectedEtape).subscribe((data) => {
     this.updateChart(data);
     this.chart2();
   });

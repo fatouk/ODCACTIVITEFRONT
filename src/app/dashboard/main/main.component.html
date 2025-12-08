@@ -152,6 +152,18 @@
      </select>
    
   </div>
+
+  <!-- Filtre par Etapes -->
+    <div class="col-md-3">
+    <label for="etape" class="form-label">Etapes</label>
+    <select id="etape" class="form-select form-control" formControlName="selectedEtape" (change)="applyFilters()">
+      <option value="">Toutes les etapes</option>
+      <ng-container *ngFor="let e of etapes">
+        <option [value]="e.id">{{ e.nom }}</option>
+      </ng-container>
+     </select>
+   
+  </div>
   <!-- Filtre Date début -->
   <div class="col-md-3">
     <label class="form-label">Date début</label>

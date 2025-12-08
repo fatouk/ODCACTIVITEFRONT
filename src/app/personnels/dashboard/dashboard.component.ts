@@ -16,6 +16,7 @@ import {
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { S } from '@angular/cdk/scrolling-module.d-ud2XrbF8';
 import { co } from '@fullcalendar/core/internal-common';
+import { Etape } from '@core/models/Etape';
 
 
 export type ChartOptions = {
@@ -65,17 +66,21 @@ export class DashboardComponent implements OnInit {
     currentUserId: number | null = this.getCurrentUserId();
     selectedActivite: number | 0 = 0;
     selectedEntite: number | 0 = 0;
+    selectedEtape:number | 0=0;
     dateDebut: Date | null =null;
     dateFin: Date | null = null;
     activites: any[] = []; // → liste des activités chargées depuis ton API
     entites: any[] = [];  
-    filteredActivites: any[] = [];  
+    etapes:Etape[]=[];
+    filteredActivites: any[] = [];
+    filteredEtapes: any[] = [];  
     formCriteres!: UntypedFormGroup;
 
     constructor(private globalService: GlobalService, private fb: UntypedFormBuilder) {
       this.formCriteres = this.fb.group({
         selectedActivite: new UntypedFormControl(''),
         selectedEntite: new UntypedFormControl(''),
+        selectedEtape: new UntypedFormControl(''),
         dateDebut: new UntypedFormControl(''),
         dateFin: new UntypedFormControl(''),
         });
@@ -91,6 +96,7 @@ export class DashboardComponent implements OnInit {
       this.getNombreActiviteTerminer();
       this.fetchGenreData();
       this.getActivites();
+      this.getEtapes();
       this.onEntiteChange() ;
       this.getEntites(); 
       this.applyFilters();
@@ -103,6 +109,15 @@ export class DashboardComponent implements OnInit {
         next: (data) => { this.activites = data; },
         error: (err) => {
           console.error('Erreur lors du chargement des activités', err);
+        },
+      }); }
+
+
+  getEtapes() {
+      this.globalService.get('etape').subscribe({
+        next: (data) => { this.etapes = data; },
+        error: (err) => {
+          console.error('Erreur lors du chargement des etapes', err);
         },
       }); }
 
@@ -296,7 +311,8 @@ this.dateDebut=this.formCriteres.get('dateDebut')?.value;
 this.dateFin=this.formCriteres.get('dateFin')?.value;
 this.selectedActivite=this.formCriteres.get('selectedActivite')?.value;
 this.selectedEntite=this.formCriteres.get('selectedEntite')?.value;
-  this.globalService.getStatsFiltres(this.dateDebut!,this.dateFin!,this.selectedActivite,this.selectedEntite).subscribe((data) => {
+this.selectedEtape=this.formCriteres.get('selectedEtape')?.value;
+  this.globalService.getStatsFiltres(this.dateDebut!,this.dateFin!,this.selectedActivite,this.selectedEntite,this.selectedEtape).subscribe((data) => {
     this.updateChart(data);
     this.chart2();
   });
@@ -320,7 +336,8 @@ updateChart(data: any) {
 onEntiteChange() {
   const entiteId = this.formCriteres.get('selectedEntite')?.value;
 console.log("Entité sélectionnée :", entiteId);
-  if (!entiteId) { console.log("toutes sans selection :", this.activites);
+  if (!entiteId) { 
+    console.log("toutes sans selection :", this.activites);
     // si aucune entité sélectionnée → afficher toutes les activités
     this.filteredActivites = this.activites;
   } else {
@@ -331,6 +348,24 @@ console.log("Entité sélectionnée :", entiteId);
 
   // reset la sélection d’activité car peut devenir invalide
   this.formCriteres.get('selectedActivite')?.setValue('');
+
+  this.applyFilters();
+}
+onActiviteChange() {
+  const activiteId = this.formCriteres.get('selectedActivite')?.value;
+console.log("activite sélectionnée :", activiteId);
+  if (!activiteId) { 
+    console.log("toutes sans selection :", this.etapes);
+    // si aucune entité sélectionnée → afficher toutes les activités
+    this.filteredEtapes= this.etapes;
+  } else {
+    console.log("Filtrage des etapes pour l'activite ID :", this.etapes);
+    // filtrer les activités appartenant à l'entité choisie
+    this.filteredEtapes = this.etapes.filter(a => a.activite?.id == activiteId);
+  }
+
+  // reset la sélection d’etape 
+  this.formCriteres.get('selectedEtape')?.setValue('');
 
   this.applyFilters();
 }

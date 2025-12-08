@@ -9,134 +9,159 @@
     </li>
     <li class="breadcrumb-item">Profile</li>
   </ul>
+
   <div class="section-body">
     <div class="row mt-sm-4">
+
+      <!-- ===== COLONNE GAUCHE ===== -->
       <div class="col-12 col-md-12 col-lg-4">
         <div class="card author-box">
           <div class="card-body">
             <div class="author-box-center">
-              <img alt="image" src="assets/images/users/user-1.png" class="rounded-circle author-box-picture">
+              <img *ngIf="genre==='Homme'" src="assets/images/users/userhomme.png"  class="rounded-circle author-box-picture"  alt="User Image" />
+              <img *ngIf="genre==='Femme'" src="assets/images/users/userfemme.png" class="rounded-circle author-box-picture"  alt="User Image" /> 
               <div class="clearfix"></div>
+
               <div class="author-box-name">
-                <a href="#" onClick="return false;">{{ prenom}} {{ nom }}</a>
+                <a href="#" onClick="return false;">{{ prenom }} {{ nom }}</a>
               </div>
               <div class="author-box-job">{{ useRole }}</div>
             </div>
-            <div class="text-center">
-<!--              <div class="author-box-description">-->
-<!--                <p>-->
-<!--                  Lorem ipsum dolor sit amet, consectetur adipisicing elit. Pariatur voluptatum alias molestias-->
-<!--                  minus quod dignissimos.-->
-<!--                </p>-->
-<!--              </div>-->
-<!--              <a href="#" onClick="return false;" class="btn btn-social-icon msr-1 btn-facebook">-->
-<!--                <i class="fab fa-facebook-f"></i>-->
-<!--              </a>-->
-<!--              <a href="#" onClick="return false;" class="btn btn-social-icon msr-1 btn-twitter">-->
-<!--                <i class="fab fa-twitter"></i>-->
-<!--              </a>-->
-<!--              <a href="#" onClick="return false;" class="btn btn-social-icon msr-1 btn-github">-->
-<!--                <i class="fab fa-github"></i>-->
-<!--              </a>-->
-<!--              <a href="#" onClick="return false;" class="btn btn-social-icon msr-1 btn-instagram">-->
-<!--                <i class="fab fa-instagram"></i>-->
-<!--              </a>-->
-              <div class="w-100 d-sm-none"></div>
-            </div>
           </div>
         </div>
+
         <div class="card">
           <div class="card-header">
             <h4>Détails Personnels</h4>
           </div>
           <div class="card-body">
             <div class="py-4">
-             <!-- <p class="clearfix">
-                <span class="float-start">
-                  Birthday
-                </span>
-                <span class="float-end text-muted">
-                  30-05-1998
-                </span>
-              </p>-->
               <p class="clearfix">
-                <span class="float-start">
-                  Phone
-                </span>
-                <span class="float-end text-muted">
-                  (00223){{ phone }}
-                </span>
+                <span class="float-start">Phone</span>
+                <span class="float-end text-muted">(00223){{ phone }}</span>
               </p>
               <p class="clearfix">
-                <span class="float-start">
-                  Mail
-                </span>
-                <span class="float-end text-muted">
-                  {{ email }}
-                </span>
+                <span class="float-start">Mail</span>
+                <span class="float-end text-muted">{{ email }}</span>
               </p>
             </div>
           </div>
         </div>
       </div>
+
+
+      <!-- ===== COLONNE DROITE ===== -->
       <div class="col-12 col-md-12 col-lg-8">
         <div class="card">
           <div class="padding-20">
+
             <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs">
+              <!-- Onglet Paramètre -->
               <li [ngbNavItem]="2">
                 <a ngbNavLink>Paramètre</a>
+
+                <!-- >>> CORRECTION : ON AFFICHE TON TEMPLATE ICI <<< -->
                 <ng-template ngbNavContent>
-                  <div class="card-header">
-                    <h4>Modifier Profile</h4>
-                  </div>
-                  <div class="card-body">
-                    <div class="row">
-                      <div class="form-group col-md-6 col-12">
-                        <label>Prenom</label>
-                        <input type="text" class="form-control" value="{{ prenom}}">
-                        <div class="invalid-feedback">
-                          Please fill in the first name
-                        </div>
-                      </div>
-                      <div class="form-group col-md-6 col-12">
-                        <label>Nom</label>
-                        <input type="text" class="form-control" value="{{ nom }}">
-                        <div class="invalid-feedback">
-                          Please fill in the last name
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="form-group col-md-7 col-12">
-                        <label>Email</label>
-                        <input type="email" class="form-control" value="{{ email }}">
-                        <div class="invalid-feedback">
-                          Please fill in the email
-                        </div>
-                      </div>
-                      <div class="form-group col-md-5 col-12">
-                        <label>Phone</label>
-                        <input type="tel" class="form-control" value="{{ phone }}">
-                      </div>
-                    </div>
-<!--                    <div class="row">-->
-<!--                      <div class="form-group col-12">-->
-<!--                        <label>Bio</label>-->
-<!--                        <textarea-->
-<!--                          class="form-control">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Pariatur voluptatum alias molestias minus quod dignissimos.</textarea>-->
-<!--                      </div>-->
-<!--                    </div>-->
-                  </div>
-                  <div class="card-footer text-end">
-                    <button class="btn btn-primary">Modification</button>
-                  </div>
+                  <ng-container *ngTemplateOutlet="profilTemplate"></ng-container>
                 </ng-template>
               </li>
             </ul>
+
             <div [ngbNavOutlet]="nav" class="mt-2"></div>
+
           </div>
         </div>
       </div>
+
     </div>
   </div>
+</section>
+
+
+<!-- ===== TON FORMULAIRE PERSONNALISÉ ===== -->
+<section class="main-content">
+  <ng-template #profilTemplate>
+    <div class="card-header">
+      <h4>Modifier le Profil</h4>
+    </div>
+
+    <form [formGroup]="profilForm" (ngSubmit)="onUpdateProfil()">
+      <div class="card-body">
+
+        <div class="row">
+          <div class="form-group col-md-6 col-12">
+            <label>Prénom</label>
+            <input type="text" class="form-control" formControlName="prenom" />
+            <div class="invalid-feedback d-block"
+                 *ngIf="profilForm.get('prenom')?.invalid && profilForm.get('prenom')?.touched">
+              Veuillez renseigner le prénom.
+            </div>
+          </div>
+
+          <div class="form-group col-md-6 col-12">
+            <label>Nom</label>
+            <input type="text" class="form-control" formControlName="nom" />
+            <div class="invalid-feedback d-block"
+                 *ngIf="profilForm.get('nom')?.invalid && profilForm.get('nom')?.touched">
+              Veuillez renseigner le nom.
+            </div>
+          </div>
+        </div>
+
+
+        <div class="row">
+          <div class="form-group col-md-7 col-12">
+            <label>Email</label>
+            <input type="email" class="form-control" formControlName="email" />
+            <div class="invalid-feedback d-block"
+                 *ngIf="profilForm.get('email')?.invalid && profilForm.get('email')?.touched">
+              Email invalide.
+            </div>
+          </div>
+
+          <div class="form-group col-md-5 col-12">
+            <label>Téléphone</label>
+            <input type="tel" class="form-control" formControlName="phone" />
+          </div>
+        </div>
+
+
+        <!-- ===== Changement Mot de Passe ===== -->
+        <h5 class="mt-4">Modifier le mot de passe</h5>
+
+        <div class="row">
+          <div class="form-group col-md-4 col-12">
+            <label>Ancien mot de passe</label>
+            <input type="password" class="form-control" formControlName="password" />
+          </div>
+
+          <div class="form-group col-md-4 col-12">
+            <label>Nouveau mot de passe</label>
+            <input type="password" class="form-control" formControlName="newpassword" />
+           </div>
+           <div *ngIf="profilForm.get('newpassword')?.touched && profilForm.get('newpassword')?.invalid">
+                        
+                        <small class="text-danger" *ngIf="profilForm.get('newpassword')?.errors?.['minlength']">
+                          Minimum 6 caractères.
+                        </small>
+                      </div>
+
+          <div class="form-group col-md-4 col-12">
+            <label>Confirmer mot de passe</label>
+            <input type="password" class="form-control" formControlName="confirmPassword" />
+            <div class="invalid-feedback d-block" *ngIf="passwordsDontMatch">
+              Les mots de passe ne correspondent pas.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="card-footer text-end">
+        <button class="btn btn-primary" [disabled]="profilForm.invalid || passwordsDontMatch">
+          Enregistrer
+        </button>
+      </div>
+    </form>
+  </ng-template>
 </section>
