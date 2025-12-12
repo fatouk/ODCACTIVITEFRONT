@@ -99,7 +99,7 @@
                     <button *ngIf="useRole.includes('PERSONNEL') && currentUserId===row.created_by.id" class="btn btn-tbl-edit h-auto" (click)='editRow(row, rowIndex, editRecord)'>
                       <i class="fas fa-pen"></i>
                     </button>
-                        <button  class="btn btn-tbl-edit h-auto" (click)='editRow(row, rowIndex, detailRecord)'>
+                        <button  class="btn btn-tbl-edit h-auto" (click)='detailRow(row, rowIndex, detailRecord)'>
                       <i class="fas fa-eye"></i>
                     </button>
                     <button
@@ -113,13 +113,13 @@
                     </button>
 
                
-  <!-- <button *ngIf="row.listeDebut.length!==0" title="Voir Liste de debut" class="btn btn-warning mr-3" (click)='openListeDebut(row)'>
+  <button *ngIf="hasListeDebut(row)" title="Voir Liste de debut" class="btn btn-warning mr-3" (click)='openListeDebut(row)'>
      <i class="far fa-file"></i>
-  </button> -->
+  </button>
 
-  <!-- <button *ngIf="row.listeResultat.length!==0"  title="Voir liste de sortie" class="btn btn-dark" style="margin-left: 7px" (click)='filterByResultat(row)'>
+  <button *ngIf="hasListeResultat(row)"  title="Voir liste de sortie" class="btn btn-dark" style="margin-left: 7px" (click)='filterByResultat(row)'>
      <i class="far fa-file"></i>
-  </button> -->
+  </button>
 
                   </span>
                 </ng-template>
@@ -156,7 +156,7 @@
                     <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
                       <label>Date Début <span class="text-danger">*</span></label>
                       <input type="date" class="form-control" placeholder="Date debut" formControlName="dateDebut"
-                             required>
+                           (change)="onDateDebutChange()" required>
                       @if (!register.get('dateDebut')?.valid && register.get('dateDebut')?.touched) {
                         <small class="form-text text-danger"> Date est obligatoire</small>
                       }
@@ -164,7 +164,7 @@
                     <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
                       <label>Date Fin <span class="text-danger">*</span></label>
                       <input type="date" class="form-control" placeholder="Date fin" formControlName="dateFin"
-                             required>
+                            [min]="minDateFin" required>
                       @if (!register.get('dateFin')?.valid && register.get('dateFin')?.touched) {
                         <small class="form-text text-danger"> Date Fin est obligatoire</small>
                       }

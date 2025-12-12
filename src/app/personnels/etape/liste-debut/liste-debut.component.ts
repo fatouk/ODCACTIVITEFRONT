@@ -6,7 +6,7 @@ import {ToastrService} from "ngx-toastr";
 import {GlobalService} from "@core/service/global.service";
 import {ActivatedRoute, Router, RouterLink} from "@angular/router";
 import {Activity} from "@core/models/Activity";
-import {of, switchMap} from "rxjs";
+import {forkJoin, of, switchMap} from "rxjs";
 import {catchError, map} from "rxjs/operators";
 import {NgForOf, NgIf} from "@angular/common";
 import autoTable, { RowInput } from 'jspdf-autotable';
@@ -21,8 +21,9 @@ import { co } from '@fullcalendar/core/internal-common';
     FormsModule,
     NgxDatatableModule,
     ReactiveFormsModule,
-    RouterLink
-  ],
+    RouterLink,
+    NgIf
+],
   templateUrl: './liste-debut.component.html',
   standalone: true,
   styleUrl: './liste-debut.component.scss'
@@ -40,6 +41,7 @@ export class ListeDebutComponent {
   isRowSelected = false;
   reorderable = true;
   public selected: number[] = [];
+  currentUserId: number | null = this.getCurrentUserId();
   columns = [
     { prop: 'nom' },
     { prop: 'prenom' },
@@ -88,48 +90,129 @@ export class ListeDebutComponent {
       return;
     }
 
-    this.afficherParticipantsDepuisListe(liste.id);
+    this.afficherParticipantsDepuisListe(liste.id, 'debut');
 
   }
+   getCurrentUserId(): number | null {
+  const raw = localStorage.getItem('bearerid');
+  // console.log('Raw currentUser from localStorage:', raw);
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    // si le stockage est juste un id string, parsed sera une string
+    if (typeof parsed === 'number') return parsed;
+    if (typeof parsed === 'string') return parseInt(parsed, 10);
+    // sinon on cherche parsed.id
+    if (parsed) return Number(parsed);
+    return null;
+  } catch {
+    // raw n'était pas JSON (peut être un id en string)
+    const val = parseInt(raw, 10);
+    return isNaN(val) ? null : val;
+  }
+}
+//PERSONNALISER LA FONCTION POUR GERER LES LISTES DEBUT ET RESULTAT 
 
-  afficherParticipantsDepuisListe(idListe: number) {
-    console.log("ID de la liste reçue pour afficher les participants de début:", idListe);  
-    this.glogalService.getId("liste", idListe).pipe(
-      switchMap((liste: any) => {
-        console.log("Données reçues de la table liste:", liste);
-        if (liste?.listeDebut === true && liste?.etape?.listeDebut?.length > 0) {
-          const participantIds = liste.etape.listeDebut.map((participant: any) => participant.id);
-          return this.glogalService.get("participant").pipe(
-            map((participants: any[]) => ({
-              participants: participants.filter((participant: any) => participantIds.includes(participant.id)),
+//   afficherParticipantsDepuisListe(idListe: number) {
+//   console.log("ID de la liste reçue:", idListe);
+
+//   this.loadingIndicator = true;
+
+//   this.glogalService.getId("liste", idListe).pipe(
+//     map((liste: any) => {
+//       console.log("Données liste reçues :", liste);
+
+//       // Vérification que la liste est bien une "liste début"
+//       if (liste?.listeDebut !== true) {
+//         console.warn("Cette liste n'est pas une liste de début.");
+//         return { participants: [], nomEtape: liste?.etape?.nom ?? "" };
+//       }
+
+//       // Vérification des participants
+//       if (!liste.participants || liste.participants.length === 0) {
+//         console.warn("Aucun participant dans cette liste.");
+//         return { participants: [], nomEtape: liste?.etape?.nom ?? "" };
+//       }
+
+//       // Résultat OK
+//       return {
+//         participants: liste.participants,
+//         nomEtape: liste.etape?.nom ?? ""
+//       };
+//     }),
+//     catchError(error => {
+//       console.error("Erreur lors de la récupération de la liste :", error);
+//       return of({ participants: [], nomEtape: "" });
+//     })
+//   )
+//   .subscribe(({ participants, nomEtape }) => {
+//     this.listeDebut = participants;
+//     this.filteredListeDebut = [...participants];
+//     this.filteredData = [...participants];
+//     this.nomEtape = nomEtape;
+
+//     this.loadingIndicator = false;
+//   });
+// }
+
+
+
+afficherParticipantsDepuisListe(idListe: number, typeListe: 'debut' | 'resultat') {
+  this.loadingIndicator = true;
+  this.glogalService.getId("liste", idListe).pipe(
+    switchMap((liste: any) => {
+      // Déterminer le champ à utiliser selon le type
+      const listeFlag = typeListe === 'debut' ? liste?.listeDebut : liste?.listeResultat;
+      const listeParticipants =  liste?.participants;
+
+      if (listeFlag === true && listeParticipants?.length > 0) {
+        const participantIds = listeParticipants.map((p: any) => p.id);
+
+        // On récupère en parallèle tous les participants et la blacklist
+        return forkJoin({
+          participants: this.glogalService.get("participant"),
+          blacklist: this.glogalService.get("blacklist")
+         
+        }).pipe(
+          map(({ participants, blacklist }: any) => {
+            // console.log("Blacklist reçue:", blacklist);
+            //  console.log("participants reçue:", participants);
+            // Filtrer les participants présents dans la liste de l'étape ET non blacklists
+            const filtered = participants.filter(
+              (p: any) => participantIds.includes(p.id) &&
+                          !blacklist.some((b: any) => b.email === p.email)
+            );
+            return {
+              participants: filtered,
               nomEtape: liste.etape?.nom ?? ""
-            })),
-
-            catchError((error) => {
-              console.error("Erreur lors de la récupération des participants:", error);
-              return of({ participants: [], nomEtape: "" }); // Return a default value on error
-            })
-          );
-
-        } else {
-          console.warn(liste?.listeDebut !== true ? "Liste non marquée comme listeDebut." : "Aucun participant trouvé pour cette étape.");
-          return of({ participants: [], nomEtape: liste?.etape?.nom ?? "" }); // Return default values
-        }
-      }),
-      catchError((error) => {
-        console.error("Erreur lors de la récupération des données:", error);
-        return of({ participants: [], nomEtape: "" }); // Handle the initial getId error
-      })
-    ).subscribe(({ participants, nomEtape }) => {
+            };
+          }),
+          catchError((error) => {
+            console.error("Erreur lors de la récupération des participants ou blacklist:", error);
+            return of({ participants: [], nomEtape: "" });
+          })
+        );
+      } else {
+        console.warn(listeFlag !== true ? "Liste non marquée comme active." : "Aucun participant trouvé pour cette étape.");
+        return of({ participants: [], nomEtape: liste?.etape?.nom ?? "" });
+      }
+    }),
+    catchError((error) => {
+      console.error("Erreur lors de la récupération de la liste:", error);
+      return of({ participants: [], nomEtape: "" });
+    })
+  ).subscribe(({ participants, nomEtape }) => {
+    if (typeListe === 'debut') {
       this.listeDebut = participants;
-      this.filteredListeDebut = [...this.listeDebut];
-      this.filteredData = [...this.listeDebut];     // Initialisez filteredData avec toutes les données
-      this.nomEtape = nomEtape;
-    });
-    setTimeout(() =>{
-      this.loadingIndicator = false;
-    },500);
-  }
+      this.filteredListeDebut = [...participants];
+    } 
+    this.filteredData = [...participants];
+    this.nomEtape = nomEtape;
+    this.loadingIndicator = false;
+  });
+}
+
+
 
   filterDatatable(event: any) {
     const val = event.target.value.toLowerCase();
@@ -168,6 +251,10 @@ export class ListeDebutComponent {
         console.log("Participant ajouté à la blacklist:", data)
         // this.getAllBlacklist();  // Recharger la liste des blacklists
         // Afficher un message de succès
+        // 👉 Retirer le participant de la liste affichée
+      this.filteredData = this.filteredData.filter(p => p.id !== participant.id);
+      this.listeDebut = this.listeDebut.filter(p => p.id !== participant.id);
+      this.filteredListeDebut= this.filteredListeDebut.filter(p => p.id !== participant.id);
         this.showSuccessToast()
       },
       error: (err) => {

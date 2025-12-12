@@ -159,7 +159,7 @@
             </div>
           </ng-template>
 
-
+ <!-- Edit Record Modal Window -->
           <ng-template #editRecord let-modal>
             <div class="modal-header editRowModal">
               <h4 class="modal-title" id="modal-basic-title">
@@ -243,6 +243,14 @@
                       <option *ngFor="let roles of role"  [value]="roles.id">{{roles.nom}}</option>
                     </select>
                   </div>
+                  <div class="row">
+  <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mb-2">
+    <label>
+      <input type="checkbox" formControlName="etat" />
+      Actif
+    </label>
+  </div>
+</div>
                 </div>
 
                 <div class="modal-footer">

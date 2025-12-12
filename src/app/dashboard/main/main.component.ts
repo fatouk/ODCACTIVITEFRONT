@@ -8,6 +8,7 @@ import { Participant } from '@core/models/Participant';
 import { NgForOf } from "@angular/common";
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
+import { forkJoin } from 'rxjs';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -260,16 +261,34 @@ export class MainComponent implements OnInit {
       },
     };
   }
- applyFilters() {
-  
-this.dateDebut=this.formCriteres.get('dateDebut')?.value;
-this.dateFin=this.formCriteres.get('dateFin')?.value;
-this.selectedActivite=this.formCriteres.get('selectedActivite')?.value;
-this.selectedEntite=this.formCriteres.get('selectedEntite')?.value;
-  this.globalService.getStatsFiltres(this.dateDebut!,this.dateFin!,this.selectedActivite,this.selectedEntite,this.selectedEtape).subscribe((data) => {
-    this.updateChart(data);
+//  applyFilters() {  
+// this.dateDebut=this.formCriteres.get('dateDebut')?.value;
+// this.dateFin=this.formCriteres.get('dateFin')?.value;
+// this.selectedActivite=this.formCriteres.get('selectedActivite')?.value;
+// this.selectedEntite=this.formCriteres.get('selectedEntite')?.value;
+//   this.globalService.getStatsFiltres(this.dateDebut!,this.dateFin!,this.selectedActivite,this.selectedEntite,this.selectedEtape).subscribe((data) => {
+//     this.updateChart(data);
+//     this.chart2();
+//   });
+// }
+applyFilters() {
+  this.dateDebut = this.formCriteres.get('dateDebut')?.value;
+  this.dateFin = this.formCriteres.get('dateFin')?.value;
+  this.selectedActivite = this.formCriteres.get('selectedActivite')?.value;
+  this.selectedEntite = this.formCriteres.get('selectedEntite')?.value;
+  this.selectedEtape = this.formCriteres.get('selectedEtape')?.value;
+
+  forkJoin({
+    stats: this.globalService.getStatsFiltres(this.dateDebut!, this.dateFin!, this.selectedActivite, this.selectedEntite, this.selectedEtape),
+    blacklist: this.globalService.get("blacklist") // Récupérer la blacklist
+  }).subscribe(({ stats, blacklist }: any) => {
+    // Filtrer les participants blacklistés dans les statistiques
+      const statsFiltrees = stats.filter((participant: any) => 
+      !blacklist.some((b: any) => b.email === participant.email)
+    );
+    this.updateChart(statsFiltrees);
     this.chart2();
-  });
+   });
 }
 
 updateChart(data: any) {

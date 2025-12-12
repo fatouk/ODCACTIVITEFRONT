@@ -10,4 +10,6 @@ export class Utilisateur {
   genre?: string;
   role?: Role;
   entite?: Entite;
+  etat?:boolean;
+  
 }

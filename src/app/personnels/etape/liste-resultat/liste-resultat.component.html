@@ -115,7 +115,7 @@
               <ngx-datatable-column name="Actions" [sortable]="false">
                 <ng-template let-value="value" let-row="row" let-rowNom let-rowIndex="rowIndex" ngx-datatable-cell-template>
                   <span>
-                    <button class="btn btn-danger align-items-center" (click)="addToBlacklist(row)">
+                    <button *ngIf="row.activite.createdBy.id==currentUserId" class="btn btn-danger align-items-center" (click)="addToBlacklist(row)">
                     Bloquer
                   </button>
                   </span>

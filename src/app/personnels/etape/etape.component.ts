@@ -66,6 +66,7 @@ export class EtapeComponent {
   public selected: number[] = [];
   useRole: string[];
   currentUserId: number | null = this.getCurrentUserId();
+  minDateFin: string | null = null;
   columns = [
     { prop: 'nom' },
     { prop: 'dateDebut' },
@@ -175,6 +176,7 @@ export class EtapeComponent {
     this.glogalService.getByActivite('etape','sansactivite').subscribe({
       next:(value: Etape[]) =>{        
         this.etape = value;
+        console.log("etape========CONTENU",this.etape)
         this.filteredData = [...value];
         setTimeout(() =>{
           this.loadingIndicator = false;
@@ -188,6 +190,19 @@ export class EtapeComponent {
     this.glogalService.get('activite').subscribe({
       next:(value: Activity[]) =>{        
          this.activites = value.filter(a => a.createdBy?.id === this.currentUserId);
+        this.filteredData = [...value];
+        setTimeout(() =>{
+          this.loadingIndicator = false;
+        },500);
+      }
+    })
+  }
+
+  getAllActiviteAll(){
+    this.loadingIndicator = true;
+    this.glogalService.get('activite').subscribe({
+      next:(value: Activity[]) =>{        
+        this.activites = value;
         this.filteredData = [...value];
         setTimeout(() =>{
           this.loadingIndicator = false;
@@ -278,7 +293,35 @@ export class EtapeComponent {
   }
   // edit record
   editRow(row: any, rowIndex: number, content: any) {
-    console.log("row==========",row)
+    this.getAllActivite();
+    // console.log("edit==========",row)
+    this.modalService.open(content, {
+      ariaLabelledBy: 'modal-basic-title',
+      size: 'lg',
+    });
+    this.editForm.patchValue({
+      id: row.id,
+      nom: row.nom,
+      dateDebut: row.dateDebut,
+      dateFin: row.dateFin,
+      activite: row.activiteid
+    });
+
+    this.selectedCriteres = []; // Réinitialiser le tableau
+
+    if (row.critere && Array.isArray(row.critere)) {
+      this.selectedCriteres = row.critere.map((critere: any) => Number(critere.id));
+    }
+
+    const critereArray = this.register.get('critere') as FormArray;
+    critereArray.clear(); // Nettoyer le FormArray pour la modification
+
+    this.selectedRowData = row;
+  }
+
+  detailRow(row: any, rowIndex: number, content: any) {
+    this.getAllActiviteAll();
+    // console.log("detail==========",row)
     this.modalService.open(content, {
       ariaLabelledBy: 'modal-basic-title',
       size: 'lg',
@@ -511,19 +554,20 @@ export class EtapeComponent {
       const uploadPromises = this.selectedFile.map((file) =>
         firstValueFrom(this.glogalService.uploadParticipants(this.selectedEtapeId!, file, toListeDebut))
       );
+Promise.all(uploadPromises).then((responses) => {
 
-      Promise.all(uploadPromises)
-        .then(() => {
-          Swal.fire({
+    // Si tu veux prendre uniquement la première réponse :
+    const res = responses[0] as any;
+Swal.fire({
             icon: 'success',
             title: 'Succès',
-            text: 'Tous les fichiers ont été téléchargés avec succès.'
+            text: res.message || 'Tous les fichiers ont été téléchargés avec succès.'
           });
-          this.modalService.dismissAll();
+    // Traiter les autres réponses si nécessaire
+    this.modalService.dismissAll();
           this.selectedFile = [];
           this.loadingIndicator = false;
-        })
-        .catch((error) => {
+}).catch((error) => {
           this.loadingIndicator = false;
           // Maintenant l'erreur est déjà formatée par le service
           const errorMessage = error.message || 'Une erreur est survenue lors du téléchargement des fichiers.';
@@ -574,16 +618,48 @@ export class EtapeComponent {
     // this.activeModal.close('Filtre début appliqué');
   }
 
+// openListeDebut(row: any) {
+//   console.log("Ouverture de la liste de début pour l'étape:", row.listeDebut[0].liste.id);
+//     sessionStorage.setItem('listeDebut', JSON.stringify(row.listeDebut[0].liste));
+//     this.router.navigate(['/listeDebut']);
+//   }
+
 openListeDebut(row: any) {
-  console.log("Ouverture de la liste de début pour l'étape:", row.listeDebut[0].liste.id);
-    sessionStorage.setItem('listeDebut', JSON.stringify(row.listeDebut[0].liste));
-    this.router.navigate(['/listeDebut']);
+  // Trouver la liste qui a listeDebut = true
+  const listeDebut = row.listes?.find((l: any) => l.listeDebut === true);
+
+  if (!listeDebut) {
+    console.error("Aucune liste de début trouvée !");
+    return;
   }
+
+  console.log("Ouverture de la liste de début, ID:", listeDebut.id);
+
+  // Enregistrer dans sessionStorage
+  sessionStorage.setItem('listeDebut', JSON.stringify(listeDebut));
+
+  // Redirection vers la page
+  this.router.navigate(['/listeDebut']);
+}
 
   openListeResultat(row: Liste) {
     sessionStorage.setItem('listeResultat', JSON.stringify(row));
     this.router.navigate(['/listeResultat']);
   }
+
+onDateDebutChange() {
+  const dateDebutValue = this.register.get('dateDebut')?.value;
+  if (dateDebutValue) {
+    this.minDateFin = dateDebutValue;    
+    // Si dateFin est avant dateDebut, on la réinitialise
+    const dateFinValue = this.register.get('dateFin')?.value;
+    if (dateFinValue && dateFinValue < dateDebutValue) {
+      this.register.get('dateFin')?.setValue('');
+    }
+  } else {
+    this.minDateFin = null;
+  }
+}
 
   // filterByDebut(row:any): void {
   //    console.log("Filtrage par liste de début pour l'étape ID :", row.id);
@@ -597,12 +673,21 @@ openListeDebut(row: any) {
   //     this.listeModalComponent?.filterByDebut();
     
   // } 
+
+  hasListeDebut(row: any): boolean {
+  return row.listes?.some((l: any) => l.listeDebut) ?? false;
+}
+
+hasListeResultat(row: any): boolean {
+  return row.listes?.some((l: any) => l.listeResultat) ?? false;
+}
 }
 
 export interface selectEtapeInterface {
   nom: string;
   dateDebut: Date;
   dateFin: Date;
+  liste?: Liste[];
   // listeDebut?: Participant[]; // Doit être un tableau
   // listeResultat?: Participant[]; // Doit être un tableau
   critere: Critere;

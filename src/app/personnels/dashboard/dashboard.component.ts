@@ -14,9 +14,10 @@ import {
   Validators
 } from "@angular/forms";
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
-import { S } from '@angular/cdk/scrolling-module.d-ud2XrbF8';
+import { C, S } from '@angular/cdk/scrolling-module.d-ud2XrbF8';
 import { co } from '@fullcalendar/core/internal-common';
 import { Etape } from '@core/models/Etape';
+import { forkJoin } from 'rxjs';
 
 
 export type ChartOptions = {
@@ -218,8 +219,7 @@ export class DashboardComponent implements OnInit {
     }
   
     private chart2() {
-  
-    console.log("Participants pour le graphique :", this.totalFemmes, this.totalHommes);
+    // console.log("Participants pour le graphique :", this.totalFemmes, this.totalHommes);
      
     console.log('Total Hommes :', this.totalHommes);
     console.log('Total Femmes :', this.totalFemmes);
@@ -304,21 +304,29 @@ export class DashboardComponent implements OnInit {
       };
     }
   
+applyFilters() {
+  this.dateDebut = this.formCriteres.get('dateDebut')?.value;
+  this.dateFin = this.formCriteres.get('dateFin')?.value;
+  this.selectedActivite = this.formCriteres.get('selectedActivite')?.value;
+  this.selectedEntite = this.formCriteres.get('selectedEntite')?.value;
+  this.selectedEtape = this.formCriteres.get('selectedEtape')?.value;
 
-  applyFilters() {
-  console.log("Filtres ===========:",this.formCriteres.get('selectedActivite')?.value);
-this.dateDebut=this.formCriteres.get('dateDebut')?.value;
-this.dateFin=this.formCriteres.get('dateFin')?.value;
-this.selectedActivite=this.formCriteres.get('selectedActivite')?.value;
-this.selectedEntite=this.formCriteres.get('selectedEntite')?.value;
-this.selectedEtape=this.formCriteres.get('selectedEtape')?.value;
-  this.globalService.getStatsFiltres(this.dateDebut!,this.dateFin!,this.selectedActivite,this.selectedEntite,this.selectedEtape).subscribe((data) => {
-    this.updateChart(data);
+  forkJoin({
+    stats: this.globalService.getStatsFiltres(this.dateDebut!, this.dateFin!, this.selectedActivite, this.selectedEntite, this.selectedEtape),
+    blacklist: this.globalService.get("blacklist") // Récupérer la blacklist
+  }).subscribe(({ stats, blacklist }: any) => {
+    // Filtrer les participants blacklistés dans les statistiques
+      const statsFiltrees = stats.filter((participant: any) => 
+      !blacklist.some((b: any) => b.email === participant.email)
+    );
+    this.updateChart(statsFiltrees);
     this.chart2();
-  });
+   });
 }
 
+
 updateChart(data: any) {
+  // console.log("data Données mises à jour pour le graphique :", data);
   this.participants = data  as Participant[];
   this.totalFemmes = this.participants.filter(p => p.genre === "Femme").length;
   this.totalHommes = this.participants.filter(p => p.genre === "Homme").length;
@@ -335,13 +343,12 @@ updateChart(data: any) {
 }
 onEntiteChange() {
   const entiteId = this.formCriteres.get('selectedEntite')?.value;
-console.log("Entité sélectionnée :", entiteId);
   if (!entiteId) { 
-    console.log("toutes sans selection :", this.activites);
+    // console.log("toutes sans selection :", this.activites);
     // si aucune entité sélectionnée → afficher toutes les activités
     this.filteredActivites = this.activites;
   } else {
-    console.log("Filtrage des activités pour l'entité ID :", this.activites);
+    // console.log("Filtrage des activités pour l'entité ID :", this.activites);
     // filtrer les activités appartenant à l'entité choisie
     this.filteredActivites = this.activites.filter(a => a.entite.id == entiteId);
   }
@@ -355,11 +362,11 @@ onActiviteChange() {
   const activiteId = this.formCriteres.get('selectedActivite')?.value;
 console.log("activite sélectionnée :", activiteId);
   if (!activiteId) { 
-    console.log("toutes sans selection :", this.etapes);
+    // console.log("toutes sans selection :", this.etapes);
     // si aucune entité sélectionnée → afficher toutes les activités
     this.filteredEtapes= this.etapes;
   } else {
-    console.log("Filtrage des etapes pour l'activite ID :", this.etapes);
+    // console.log("Filtrage des etapes pour l'activite ID :", this.etapes);
     // filtrer les activités appartenant à l'entité choisie
     this.filteredEtapes = this.etapes.filter(a => a.activite?.id == activiteId);
   }

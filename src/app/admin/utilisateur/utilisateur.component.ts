@@ -70,6 +70,7 @@ export class UtilisateurComponent {
       phone: new UntypedFormControl(),
       role: new UntypedFormControl(),
       entite: new UntypedFormControl(),
+      etat: new UntypedFormControl()
     });
   }
 
@@ -97,7 +98,6 @@ export class UtilisateurComponent {
       next:(value: Utilisateur[]) =>{
         this.users = value;
         console.log("Users",this.users)
-
         this.filteredData = [...value];
         setTimeout(() =>{
           this.loadingIndicator = false;
@@ -137,7 +137,7 @@ export class UtilisateurComponent {
 
   onAddRowSave(form: UntypedFormGroup) {
     this.loadingIndicator = true;
-    console.log("Form value", form.value);
+    // console.log("Form value", form.value);
     // const payload = { ...form.value, role: Number(form.value.role),entite:{ id: form.value.entite } // <- transforme l'ID en objet}; // conversion string → number
   // console.log("Payload envoyé", form.value);
     this.glogalService.post('utilisateur', form.value).subscribe({
@@ -195,6 +195,7 @@ export class UtilisateurComponent {
 
   // edit record
   editRow(row: any, content: any) {
+    console.log("row data========",row);
     this.modalService.open(content, {
       ariaLabelledBy: 'modal-basic-title',
       size: 'lg',
@@ -209,6 +210,7 @@ export class UtilisateurComponent {
       phone: row.phone,
       role: row.role?.id,
       entite: row.entite?.id,
+      etat: row.etat
     });
     this.selectedRowData = row;
   }
@@ -335,4 +337,5 @@ export interface selectUtilisateurInterface {
   phone: string;
   role: Role;
   entite: Entite;
+  etat: boolean;
 }

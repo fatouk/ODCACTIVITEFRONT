@@ -117,7 +117,7 @@
 <!--                    <button class="btn btn-tbl-edit h-auto" (click)='editRow(row, rowIndex, editRecord)'>-->
 <!--                      <i class="fas fa-pen"></i>-->
 <!--                    </button>-->
-                  <button class="btn btn-danger align-items-center" (click)="addToBlacklist(row)">
+                  <button *ngIf="row.activite.createdBy.id==currentUserId" class="btn btn-danger align-items-center" (click)="addToBlacklist(row)">
                     Bloquer
                   </button>
 <!--                  </span>-->
